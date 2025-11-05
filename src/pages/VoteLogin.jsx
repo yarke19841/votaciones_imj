@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"   // 👈 agregamos Link
 import { supabase } from "../lib/supabase"
 
-export default function VoteLoginStandalone() {
-  useEffect(() => { console.log("✅ Renderizando VoteLoginStandalone") }, [])
+export default function VoteLogin() {
+  useEffect(() => { console.log("✅ Renderizando VoteLogin") }, [])
 
   const [cedula, setCedula] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
@@ -25,7 +25,7 @@ export default function VoteLoginStandalone() {
         .single()
       if (eErr || !election) { setErrorMsg("No hay una elección abierta."); return }
 
-      // 2) Miembro por cédula (traemos todo para no fallar por esquema)
+      // 2) Miembro por cédula
       const { data: member, error: mErr } = await supabase
         .from("member")
         .select("*")
@@ -34,7 +34,7 @@ export default function VoteLoginStandalone() {
       if (mErr) { setErrorMsg("Error al validar tu cédula."); return }
       if (!member) { setErrorMsg("No estás registrado. Ve a mesa de registro."); return }
 
-      // 2.1) Miembro ACTIVO (aceptamos varios esquemas)
+      // 2.1) Miembro ACTIVO
       const statusStr = typeof member.status === "string" ? member.status.toLowerCase().trim() : null
       const resolvedActive =
         (typeof member.is_active === "boolean" ? member.is_active : null) ??
@@ -46,7 +46,7 @@ export default function VoteLoginStandalone() {
         return
       }
 
-      // 3) **ASISTENCIA REQUERIDA** (attendance_voter debe existir para esta elección)
+      // 3) Asistencia requerida
       const { data: att, error: aErr } = await supabase
         .from("attendance_voter")
         .select("id, present")
@@ -55,14 +55,13 @@ export default function VoteLoginStandalone() {
         .maybeSingle()
       if (aErr) { setErrorMsg("Error validando tu asistencia. Acércate a mesa."); return }
 
-      // Si no hay registro de asistencia o present es false → no pasa
       const presentOk = att && (att.present === undefined || att.present === true)
       if (!presentOk) {
         setErrorMsg("Primero debes pasar por mesa para marcar tu asistencia.")
         return
       }
 
-      // 4) Guardar en sesión y continuar a papeleta
+      // 4) Guardar sesión y continuar
       sessionStorage.setItem("election", JSON.stringify(election))
       sessionStorage.setItem("voter", JSON.stringify({
         member_id: member.id, full_name: member.full_name, cedula: member.cedula
@@ -89,7 +88,8 @@ export default function VoteLoginStandalone() {
     input:{ width:"100%", padding:"10px 12px", border:"1px solid #d1d5db", borderRadius:10, outline:"none", marginBottom:10 },
     error:{ color:"#e11d48", fontSize:13, marginBottom:10 },
     btn:{ width:"100%", padding:"12px 16px", borderRadius:12, border:"1px solid #2563eb", background:"#2563eb", color:"#fff", fontWeight:700, cursor:"pointer" },
-    footer:{ padding:24, textAlign:"center", color:"#6b7280", fontSize:12 }
+    footer:{ padding:24, textAlign:"center", color:"#6b7280", fontSize:12 },
+    adminLink:{ display:'inline-block',marginTop:12,fontSize:12,textDecoration:'underline', color:'#2563eb' }
   }
 
   return (
@@ -100,13 +100,11 @@ export default function VoteLoginStandalone() {
             <div style={s.brandSquare} />
             <div style={s.brandTitle}>Elección de Diáconos</div>
           </div>
-          <div />
+
+          {/* 👇 Usa Link en lugar de <a href> para evitar 404 del servidor */}
+          <Link to="/admin/login" style={s.adminLink}>Soy administrador</Link>
         </div>
       </header>
-
-      <a href="/admin/login" style={{display:'inline-block',marginTop:12,fontSize:12,color:'#2563eb',textDecoration:'underline'}}>
-        Soy administrador
-      </a>
 
       <main style={s.main}>
         <div style={s.card}>
