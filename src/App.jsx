@@ -25,18 +25,14 @@ export default function App() {
       {/* Público */}
       <Route path="/" element={<VoteLogin />} />
       <Route path="/vote" element={<VoteBallot />} />
-      <Route path="/thanks" element={<VoteThanks />} />
+      <Route path="/vote/thanks" element={<VoteThanks />} />
 
       {/* Admin: login público */}
       <Route path="/admin/login" element={<AdminLogin />} />
 
       {/* Admin: protegido + layout (rutas RELATIVAS dentro de /admin) */}
-      <Route
-        path="/admin"
-        element={
-          <RequireAdmin>
-            <AdminLayout />
-          </RequireAdmin>
+      <Route path="/admin" element={<RequireAdmin>
+            <AdminLayout />  </RequireAdmin>
         }
       >
         {/* /admin */}

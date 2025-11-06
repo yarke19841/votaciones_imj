@@ -1,20 +1,20 @@
-// src/pages/VoteThanks.jsx
-export default function VoteThanks(){
+export default function VoteThanks() {
   const s = {
-    page:{ minHeight:"100vh", background:"#f3f4f6", fontFamily:"system-ui,-apple-system,Segoe UI,Roboto", display:"grid", placeItems:"center", padding:"24px 16px" },
-    card:{ maxWidth:420, width:"100%", background:"#fff", border:"1px solid #e5e7eb", borderRadius:16, padding:24, textAlign:"center", boxShadow:"0 8px 24px rgba(0,0,0,.06)" },
-    title:{ fontSize:20, fontWeight:700, marginTop:6 },
-    cap:{ fontSize:14, color:"#6b7280", margin:"6px 0 16px" },
-    btn:{ display:"inline-block", width:"100%", padding:"12px 16px", borderRadius:12, border:"1px solid #2563eb", background:"#2563eb", color:"#fff", fontWeight:700, cursor:"pointer", textDecoration:"none" }
+    page:{ minHeight:"100vh", background:"#f3f4f6", display:"grid", placeItems:"center", fontFamily:"system-ui,-apple-system,Segoe UI,Roboto" },
+    card:{ background:"#fff", border:"1px solid #e5e7eb", borderRadius:16, padding:32, textAlign:"center", boxShadow:"0 8px 24px rgba(0,0,0,.06)", maxWidth:420 },
+    title:{ fontSize:22, fontWeight:700, marginBottom:12 },
+    text:{ fontSize:15, color:"#374151", marginBottom:16 },
+    emoji:{ fontSize:48, marginBottom:12 },
+    footer:{ fontSize:12, color:"#6b7280", marginTop:16 }
   }
 
   return (
     <div style={s.page}>
       <div style={s.card}>
-        <div style={{fontSize:40}}>🙌</div>
-        <div style={s.title}>Tu voto ha sido registrado</div>
-        <div style={s.cap}>Dios bendiga tu servicio a la iglesia.</div>
-        <a href="/" style={s.btn}>Terminar</a>
+        <div style={s.emoji}>🙏</div>
+        <div style={s.title}>¡Gracias por tu voto!</div>
+        <div style={s.text}>Tu participación ha sido registrada con éxito.</div>
+        <div style={s.footer}>IGLESIA MINISTERIO JEZREEL · Elección 2025</div>
       </div>
     </div>
   )

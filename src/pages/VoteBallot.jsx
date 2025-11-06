@@ -1,9 +1,24 @@
+// src/pages/VoteBallot.jsx
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "../lib/supabase"
 
+// Hook simple para detectar mobile (<= 640px)
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth <= breakpoint : false
+  )
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= breakpoint)
+    window.addEventListener("resize", onResize)
+    return () => window.removeEventListener("resize", onResize)
+  }, [breakpoint])
+  return isMobile
+}
+
 export default function VoteBallot(){
   const navigate = useNavigate()
+  const isMobile = useIsMobile(640)
 
   // Tomamos elección y votante de la sesión
   const election = useMemo(() => {
@@ -33,31 +48,43 @@ export default function VoteBallot(){
   const reqM = election?.required_male ?? 0
   const ready = selF.length === reqF && selM.length === reqM
 
-  // estilos
+  // estilos (algunos dependen de isMobile)
   const s = {
     page: { minHeight:"100vh", background:"#f3f4f6", fontFamily:"system-ui,-apple-system,Segoe UI,Roboto" },
     headerWrap:{ background:"#fff", borderBottom:"1px solid #e5e7eb" },
     header:{
       maxWidth:960, margin:"0 auto", padding:"14px 16px",
-      display:"grid", gridTemplateColumns:"1fr auto", gap:12, alignItems:"center"
+      display:"grid",
+      gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
+      gap: isMobile ? 8 : 12,
+      alignItems:"center"
     },
-    // Izquierda: título grande + subtítulo
-    headLeftWrap:{ display:"flex", alignItems:"center", gap:12, minWidth:0 },
+    // Bloque título
+    headLeftWrap:{ display:"flex", alignItems:"center", gap:12, minWidth:0, order: isMobile ? 2 : 1 },
     brandSquare:{ width:40, height:40, borderRadius:12, background:"#2563eb" },
     headTextWrap:{ minWidth:0 },
-    brandTitle:{ fontSize:22, fontWeight:800, lineHeight:1.1, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" },
-    brandSubtitle:{ fontSize:12, color:"#6b7280" },
+    brandTitle:{
+      fontSize: isMobile ? 18 : 22,
+      fontWeight:800,
+      lineHeight:1.1,
+      whiteSpace: isMobile ? "normal" : "nowrap",
+      overflow:"hidden",
+      textOverflow:"ellipsis"
+    },
+    brandSubtitle:{ fontSize:12, color:"#6b7280", marginTop:4 },
 
-    // Derecha: bienvenida grande
+    // Bloque bienvenida
     welcome:{
+      order: isMobile ? 1 : 2,
       display:"flex", alignItems:"center", gap:12, background:"#f8fafc",
-      border:"1px solid #e5e7eb", padding:"8px 12px", borderRadius:14
+      border:"1px solid #e5e7eb", padding: isMobile ? "10px 12px" : "8px 12px",
+      borderRadius:14
     },
     avatar:{ width:36, height:36, borderRadius:999, background:"#e0e7ff", color:"#3730a3",
       fontWeight:800, display:"grid", placeItems:"center", fontSize:14 },
     welcomeTextWrap:{ lineHeight:1.15 },
-    welcomeTitle:{ fontSize:12, color:"#6b7280" },
-    welcomeName:{ fontSize:16, fontWeight:800 },
+    welcomeTitle:{ fontSize:12, color:"#6b7280", display:"block" },
+    welcomeName:{ fontSize: isMobile ? 16 : 16, fontWeight:800, display:"block" },
 
     main:{ maxWidth:960, margin:"0 auto", padding:"24px 16px" },
     card:{ background:"#fff", border:"1px solid #e5e7eb", borderRadius:16, padding:20, boxShadow:"0 8px 24px rgba(0,0,0,.06)", marginBottom:16 },
@@ -84,13 +111,25 @@ export default function VoteBallot(){
     })
   }
 
-  // Cargar candidatos y, si existen, la selección previa del votante (voto editable)
+  // Cargar candidatos y bloquear si YA votó
   useEffect(() => {
     if (!election || !voter) { navigate("/"); return }
-    (async () => {
+    ;(async () => {
       setLoading(true); setErr(""); setOkMsg("")
       try {
-        // 1) candidatos
+        // 0) ¿Ya votó? Si sí, redirige a gracias
+        const { data: existing, error: exErr } = await supabase
+          .from("cast_vote")
+          .select("id", { head: false })
+          .eq("election_id", election.id)
+          .eq("voter_member_id", voter.member_id)
+        if (exErr) throw exErr
+        if (existing && existing.length > 0) {
+          navigate("/vote/thanks", { replace: true })
+          return
+        }
+
+        // 1) candidatos F
         const { data: females, error: ef } = await supabase
           .from("candidate")
           .select("id, full_name, photo_url, description, gender, active")
@@ -99,6 +138,7 @@ export default function VoteBallot(){
           .eq("active", true)
           .order("full_name", { ascending: true })
 
+        // 1b) candidatos M
         const { data: males, error: em } = await supabase
           .from("candidate")
           .select("id, full_name, photo_url, description, gender, active")
@@ -111,23 +151,6 @@ export default function VoteBallot(){
 
         setFemale(females || [])
         setMale(males || [])
-
-        // 2) votos existentes (si los hay) → precargar selección
-        const { data: existing, error: exErr } = await supabase
-          .from("cast_vote")
-          .select("candidate_id")
-          .eq("election_id", election.id)
-          .eq("voter_member_id", voter.member_id)
-
-        if (exErr) throw exErr
-
-        if (existing?.length) {
-          const fSet = new Set((females||[]).map(x=>x.id))
-          const mSet = new Set((males||[]).map(x=>x.id))
-          const picked = existing.map(v => v.candidate_id)
-          setSelF(picked.filter(id => fSet.has(id)))
-          setSelM(picked.filter(id => mSet.has(id)))
-        }
       } catch (e) {
         console.error(e)
         setErr("No se pudo inicializar la papeleta. Intenta de nuevo.")
@@ -160,17 +183,21 @@ export default function VoteBallot(){
         .single()
       if (elErr) throw elErr
       if (el?.status !== "abierta") {
-        setErr("La elección ya no está abierta. No se puede modificar el voto.")
+        setErr("La elección ya no está abierta. No se puede registrar el voto.")
         setSaving(false); return
       }
 
-      // 1) eliminar votos anteriores del votante en esta elección
-      const { error: delErr } = await supabase
+      // 1) Verificar si YA votó (bloquea segundo intento)
+      const { data: already, error: alErr } = await supabase
         .from("cast_vote")
-        .delete()
+        .select("id")
         .eq("election_id", election.id)
         .eq("voter_member_id", voter.member_id)
-      if (delErr) throw delErr
+      if (alErr) throw alErr
+      if (already && already.length > 0) {
+        navigate("/vote/thanks", { replace: true })
+        return
+      }
 
       // 2) insertar los nuevos
       const rows = [
@@ -182,15 +209,20 @@ export default function VoteBallot(){
       const { error: insErr } = await supabase.from("cast_vote").insert(rows)
       if (insErr) throw insErr
 
-      // 3) marcar ya votó (si no lo estaba); mantener true aunque edite
+      // 3) marcar ya votó (si tienes esta tabla de relación)
       await supabase
         .from("election_member")
         .update({ already_voted: true, voted_at: new Date().toISOString() })
         .eq("election_id", election.id)
         .eq("member_id", voter.member_id)
 
-      setOkMsg("¡Voto guardado! Puedes actualizarlo mientras la elección esté abierta.")
-      // Nota: NO limpiamos sesión; así puede volver a editar si se equivoca.
+      // 4) limpiar sesión y agradecer
+      try {
+        sessionStorage.removeItem("voter")
+        sessionStorage.removeItem("election")
+      } catch {}
+      navigate("/vote/thanks", { replace: true })
+      return
     } catch (e) {
       console.error(e)
       const msg = (e?.message || "").toLowerCase()
@@ -210,23 +242,23 @@ export default function VoteBallot(){
     <div style={s.page}>
       <header style={s.headerWrap}>
         <div style={s.header}>
-          {/* Izquierda: título grande */}
-          <div style={s.headLeftWrap}>
-            <div style={s.brandSquare} />
-            <div style={s.headTextWrap}>
-              <div style={s.brandTitle}>{election.title || "Elección"}</div>
-              <div style={s.brandSubtitle}>
-                Debes elegir: <b>{reqM}</b> H · <b>{reqF}</b> M
-              </div>
-            </div>
-          </div>
-
-          {/* Derecha: bienvenida grande al voto electrónico */}
+          {/* En mobile, este bloque va primero */}
           <div style={s.welcome}>
             <div style={s.avatar}>{initials}</div>
             <div style={s.welcomeTextWrap}>
               <span style={s.welcomeTitle}>Bienvenido(a) al voto electrónico</span>
               <span style={s.welcomeName}>{displayName}</span>
+            </div>
+          </div>
+
+          {/* En mobile, este bloque va debajo */}
+          <div style={s.headLeftWrap}>
+            <div style={s.brandSquare} />
+            <div style={s.headTextWrap}>
+              <div style={s.brandTitle}>{election?.title || "Elección"}</div>
+              <div style={s.brandSubtitle}>
+                Debes elegir: <b>{reqM}</b> H · <b>{reqF}</b> M
+              </div>
             </div>
           </div>
         </div>
@@ -236,7 +268,7 @@ export default function VoteBallot(){
         <div style={s.card}>
           <span style={s.note}>Secreto</span>
           <span style={{fontSize:13, color:"#6b7280"}}>
-            Tu voto se registra de forma anónima. Puedes **actualizarlo** mientras la elección esté <b>abierta</b>.
+            Tu voto se registra de forma anónima. Solo puedes votar <b>una vez</b> en esta elección.
           </span>
         </div>
 
@@ -299,7 +331,7 @@ export default function VoteBallot(){
 
             <div style={s.actions}>
               <button style={s.btn(ready && !saving)} disabled={!ready || saving} onClick={submit}>
-                {saving ? "Guardando..." : "Guardar / Actualizar voto"}
+                {saving ? "Guardando..." : "Guardar voto"}
               </button>
             </div>
           </>
