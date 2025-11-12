@@ -18,6 +18,7 @@ import AdminResults from "./pages/admin/AdminResults.jsx"
 import AdminCheckIn from "./pages/admin/AdminCheckIn.jsx"
 import AdminCandidateList from "./pages/admin/AdminCandidateList.jsx"
 import AdminVoterEligibility from "./pages/admin/AdminVoterElegibility.jsx"
+import AdminQuickCheckIn from "./pages/admin/AdminQuickCheckIn.jsx"
 
 export default function App() {
   return (
@@ -43,8 +44,15 @@ export default function App() {
         {/* /admin/elections */}
         <Route path="elections" element={<AdminElectionList />} />
 
+            {/* /admin/elections */}
+        <Route path="results" element={<AdminResults />} />
+
         {/* ✅ /admin/members */}
         <Route path="members/" element={<AdminMembers />} />
+
+ {/* ✅ /admin/members */}
+        <Route path="Adminquickcheckin/" element={<AdminQuickCheckIn/>} />
+
 
         {/* ✅ /admin/candidatos*/}
         <Route path="candidates/" element={<AdminCandidateList/>} />

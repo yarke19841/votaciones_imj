@@ -61,14 +61,14 @@ export default function AdminElectionConfig() {
 
       // Actions sticky
       sticky:{ position:"sticky", bottom:12, marginTop:14, display:"flex", gap:10, alignItems:"center",
-        background:"transparent", padding:"0", flexWrap:"wrap" },
+        background:"transparent", padding:"0" },
 
       btn:{ padding:"10px 14px", borderRadius:12, border:"1px solid #d1d5db", background:"#fff",
         cursor:"pointer", fontSize:14, fontWeight:700, color:"#0f172a" },
       btnPrimary:{ padding:"10px 14px", borderRadius:12, border:"1px solid #2563eb",
         background:"#2563eb", color:"#fff", cursor:"pointer", fontSize:14, fontWeight:800 },
-      btnDanger:{ padding:"10px 14px", borderRadius:12, border:"1px solid #ef4444",
-        background:"#ef4444", color:"#fff", cursor:"pointer", fontSize:14, fontWeight:800 },
+      btnGhost:{ padding:"10px 14px", borderRadius:12, border:"1px solid #e2e8f0",
+        background:"#f1f5f9", color:"#0f172a", cursor:"pointer", fontSize:14, fontWeight:700 },
 
       // Alerts
       muted:{ fontSize:13, color:"#64748b" },
@@ -89,17 +89,16 @@ export default function AdminElectionConfig() {
 
   const [form, setForm] = useState({
     title: "", required_male: 0, required_female: 0, notes: "",
-    opened_at: null, closed_at: null, created_at: null, status: null
+    opened_at: null, closed_at: null, created_at: null
   })
   const [counts, setCounts] = useState({ male:0, female:0, total:0 })
 
   // ---------- UI helpers ----------
   const statusBadge = useMemo(() => {
-    const st = (form.status || "").toLowerCase()
-    if (st === "abierta" && !form.closed_at) return { text:"Votación abierta", cls:s.badgeGreen }
-    if (st === "cerrada" || form.closed_at) return { text:"Cerrada", cls:s.badgeRed }
+    if (form.closed_at) return { text:"Cerrada", cls:s.badgeRed }
+    if (form.opened_at) return { text:"Abierta", cls:s.badgeGreen }
     return { text:"Borrador", cls:s.badgeGray }
-  }, [form.status, form.closed_at, s])
+  }, [form.opened_at, form.closed_at, s])
 
   const showToast = (type, text) => {
     setToast({ type, text })
@@ -110,7 +109,7 @@ export default function AdminElectionConfig() {
   const fetchElection = useCallback(async () => {
     const { data, error } = await supabase
       .from("election")
-      .select("id,title,required_male,required_female,notes,opened_at,closed_at,created_at,status")
+      .select("id,title,required_male,required_female,notes,opened_at,closed_at,created_at")
       .eq("id", id)
       .single()
     if (error) { setError("No se pudo cargar la elección."); console.error(error); return }
@@ -121,8 +120,7 @@ export default function AdminElectionConfig() {
       notes: data.notes ?? "",
       opened_at: data.opened_at,
       closed_at: data.closed_at,
-      created_at: data.created_at,
-      status: data.status ?? null
+      created_at: data.created_at
     })
   }, [id])
 
@@ -159,7 +157,7 @@ export default function AdminElectionConfig() {
     setForm(f => ({
       ...f,
       [name]: name.startsWith("required_")
-        ? Math.max(0, Number(value ?? 0))
+        ? Math.max(0, Number(value ?? 0))   // evita negativos
         : value
     }))
   }
@@ -180,44 +178,17 @@ export default function AdminElectionConfig() {
     else showToast("ok","Cambios guardados")
   }
 
-  const isOpen = (form.status || "").toLowerCase() === "abierta" && !form.closed_at
-
-  const toggleOpenClose = async () => {
+  const openElection = async () => {
+    if (!confirm("¿Abrir la votación ahora? Se definirá 'opened_at' con la hora actual.")) return
     setSaving(true); setError("")
-    try {
-      if (!isOpen) {
-        // ABRIR VOTACIÓN
-        const { error } = await supabase
-          .from("election")
-          .update({
-            status: "abierta",
-            opened_at: form.opened_at ?? new Date().toISOString(),
-            closed_at: null
-          })
-          .eq("id", id)
-        if (error) throw error
-        showToast("ok","✅ Votación abierta")
-      } else {
-        // CERRAR VOTACIÓN
-        const { error } = await supabase
-          .from("election")
-          .update({
-            status: "cerrada",
-            closed_at: new Date().toISOString()
-          })
-          .eq("id", id)
-        if (error) throw error
-        showToast("ok","🛑 Votación cerrada")
-      }
-      await fetchElection()
-    } catch (e) {
-      console.error(e)
-      setError("No se pudo actualizar el estado de la elección.")
-      showToast("err","Error al cambiar estado")
-    } finally {
-      setSaving(false)
-    }
+    const now = new Date().toISOString()
+    const { error } = await supabase.from("election").update({ opened_at: now, closed_at: null }).eq("id", id)
+    setSaving(false)
+    if (error) { setError("No se pudo abrir la votación."); showToast("err","Error al abrir"); }
+    else { setForm(f => ({ ...f, opened_at: now, closed_at: null })); showToast("ok","Votación abierta") }
   }
+
+  const canOpen = !form.opened_at || !!form.closed_at
 
   // ---------- UI ----------
   return (
@@ -299,20 +270,12 @@ export default function AdminElectionConfig() {
                 <button style={s.btnPrimary} onClick={handleSave} disabled={saving}>
                   {saving ? "Guardando…" : "Guardar cambios"}
                 </button>
-
-                <button
-                  style={isOpen ? s.btnDanger : s.btnPrimary}
-                  onClick={toggleOpenClose}
-                  disabled={saving}
-                >
-                  {saving ? "Procesando…" : (isOpen ? "Cerrar votación" : "Abrir votación")}
+                <button style={s.btnGhost} onClick={openElection} disabled={!canOpen || saving}>
+                  Abrir votación
                 </button>
-
                 <button style={s.btn} onClick={fetchCounts} title="Refrescar KPIs">Refrescar</button>
-
                 <span style={s.muted}>
-                  {form.opened_at && <>Oficial abierta desde <b>{new Date(form.opened_at).toLocaleString()}</b></>}
-                  {form.closed_at && <> · Cerrada el <b>{new Date(form.closed_at).toLocaleString()}</b></>}
+                  {form.opened_at && <>Abierta desde <b>{new Date(form.opened_at).toLocaleString()}</b></>}
                 </span>
               </div>
             </div>
