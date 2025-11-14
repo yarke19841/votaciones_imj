@@ -21,6 +21,11 @@ export default function AdminMemberList(){
     notes: ""
   })
 
+  // 👇 NUEVO: estado para editar solo la cédula
+  const [editingId, setEditingId] = useState(null)      // id del miembro que se está editando
+  const [editingCedula, setEditingCedula] = useState("")// cédula temporal
+  const [editingSaving, setEditingSaving] = useState(false)
+
   const s = {
     page:{ fontFamily:"system-ui,-apple-system,Segoe UI,Roboto", background:"#f3f4f6", minHeight:"100vh" },
     wrap:{ maxWidth:1100, margin:"0 auto", padding:"24px 16px" },
@@ -52,7 +57,7 @@ export default function AdminMemberList(){
       return {
         display:"inline-flex", alignItems:"center", justifyContent:"center",
         padding:"10px 12px", borderRadius:12, border:`1px solid ${x.border}`,
-        background:x.background, color:x.color, fontWeight:700, cursor:"pointer"
+        background:x.background, color:x.color, fontWeight:700, cursor:"pointer", fontSize:13
       }
     },
     err:{ color:"#e11d48", fontSize:13, marginTop:8 },
@@ -67,7 +72,7 @@ export default function AdminMemberList(){
       setLoading(true); setError(""); setMsg("")
       let { data, error } = await supabase
         .from("member")
-        .select("id, cedula, first_name, last_name, full_name, sex, is_active, notes, created_at")
+        .select("id, cedula, cedula_norm, first_name, last_name, full_name, sex, is_active, notes, created_at")
 
       if (error) {
         // fallback si no hay full_name
@@ -177,6 +182,80 @@ export default function AdminMemberList(){
     }
   }
 
+  // 👉 NUEVO: iniciar edición de cédula
+  function startEditCedula(row){
+    setEditingId(row.id)
+    setEditingCedula(row.cedula || "")
+    setError("")
+    setMsg("")
+  }
+
+  // 👉 NUEVO: cancelar edición
+  function cancelEditCedula(){
+    setEditingId(null)
+    setEditingCedula("")
+  }
+
+  // 👉 NUEVO: guardar nueva cédula
+  async function saveCedula(row){
+    const cedula = (editingCedula || "").trim()
+    if (!cedula){
+      setError("La cédula no puede estar vacía.")
+      return
+    }
+
+    const newNorm = normalizeCedulaLocal(cedula)
+    const oldNorm = row.cedula ? normalizeCedulaLocal(row.cedula) : row.cedula_norm || null
+
+    try {
+      setEditingSaving(true)
+      setError("")
+      setMsg("")
+
+      // Si cambió la cédula normalizada, validar duplicados
+      if (newNorm !== oldNorm) {
+        const { data: dup, error: dupErr } = await supabase
+          .from("member")
+          .select("id")
+          .eq("cedula_norm", newNorm)
+          .neq("id", row.id)
+          .maybeSingle()
+        if (dupErr) throw dupErr
+        if (dup) {
+          setError("Ya existe un miembro con esa cédula.")
+          setEditingSaving(false)
+          return
+        }
+      }
+
+      const payload = {
+        cedula,
+        cedula_norm: newNorm
+      }
+
+      const { error: upErr } = await supabase
+        .from("member")
+        .update(payload)
+        .eq("id", row.id)
+
+      if (upErr) throw upErr
+
+      // Actualizar en memoria
+      setRows(prev =>
+        prev.map(r => r.id === row.id ? { ...r, ...payload } : r)
+      )
+
+      setMsg("Cédula actualizada correctamente.")
+      setEditingId(null)
+      setEditingCedula("")
+    } catch (e) {
+      console.error("[member.updateCedula]", e)
+      setError(e.message || "No se pudo actualizar la cédula.")
+    } finally {
+      setEditingSaving(false)
+    }
+  }
+
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase()
     if (!t) return rows
@@ -281,27 +360,72 @@ export default function AdminMemberList(){
 
           <div style={s.cardBody}>
             {loading ? "Cargando…" :
-             error ? <div style={s.err}>{error}</div> :
+             error && !msg ? <div style={s.err}>{error}</div> :
              filtered.length === 0 ? "Sin coincidencias." :
              <div style={s.grid}>
-               {filtered.map(r => (
-                 <div key={r.id} style={s.item}>
-                   <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-                     <div style={{fontWeight:800}}>{r.full_name || "—"}</div>
-                     <span style={s.badge(r.is_active)}>{r.is_active ? "Activo" : "Inactivo"}</span>
-                   </div>
-                   <div style={s.meta}>Cédula: {r.cedula ?? "—"}</div>
-                   <div style={s.meta}>Sexo: {r.sex ?? "—"}</div>
-                   {r.notes && <div style={{fontSize:12, color:"#4b5563", marginTop:6}}>{r.notes}</div>}
+               {filtered.map(r => {
+                 const isEditing = editingId === r.id
+                 return (
+                   <div key={r.id} style={s.item}>
+                     <div style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+                       <div style={{fontWeight:800}}>{r.full_name || "—"}</div>
+                       <span style={s.badge(r.is_active)}>{r.is_active ? "Activo" : "Inactivo"}</span>
+                     </div>
 
-                   <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
-                     <button style={s.btn("ghost")} onClick={()=>toggleActive(r)}>
-                       {r.is_active ? "Desactivar" : "Activar"}
-                     </button>
-                     <button style={s.btn("danger")} onClick={()=>remove(r)}>Eliminar</button>
+                     {/* Cédula: ahora editable */}
+                     <div style={s.meta}>
+                       Cédula:{" "}
+                       {isEditing ? (
+                         <input
+                           style={{...s.input, marginTop:4, padding:"6px 8px", fontSize:12}}
+                           value={editingCedula}
+                           onChange={e=>setEditingCedula(e.target.value)}
+                           placeholder="8-123-456"
+                         />
+                       ) : (
+                         r.cedula ?? "—"
+                       )}
+                     </div>
+
+                     <div style={s.meta}>Sexo: {r.sex ?? "—"}</div>
+                     {r.notes && <div style={{fontSize:12, color:"#4b5563", marginTop:6}}>{r.notes}</div>}
+
+                     <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
+                       {isEditing ? (
+                         <>
+                           <button
+                             style={s.btn("primary")}
+                             onClick={()=>saveCedula(r)}
+                             disabled={editingSaving}
+                           >
+                             {editingSaving ? "Guardando…" : "Guardar cédula"}
+                           </button>
+                           <button
+                             style={s.btn("ghost")}
+                             onClick={cancelEditCedula}
+                             disabled={editingSaving}
+                           >
+                             Cancelar
+                           </button>
+                         </>
+                       ) : (
+                         <>
+                           <button
+                             style={s.btn("primary")}
+                             onClick={()=>startEditCedula(r)}
+                           >
+                             Editar cédula
+                           </button>
+                           <button style={s.btn("ghost")} onClick={()=>toggleActive(r)}>
+                             {r.is_active ? "Desactivar" : "Activar"}
+                           </button>
+                           <button style={s.btn("danger")} onClick={()=>remove(r)}>Eliminar</button>
+                         </>
+                       )}
+                     </div>
                    </div>
-                 </div>
-               ))}
+                 )
+               })}
              </div>
             }
           </div>

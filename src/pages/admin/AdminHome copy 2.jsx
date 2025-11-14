@@ -20,7 +20,7 @@ export default function AdminHome() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [latest, setLatest] = useState(null) // { id, title, opened_at, closed_at }
-  const [closing, setClosing] = useState(false)
+  const [closing, setClosing] = useState(false) // ← NUEVO
 
   useEffect(() => {
     let cancelled = false
@@ -67,7 +67,7 @@ export default function AdminHome() {
       const map = {
         primary: { background: "#2563eb", border: "#2563eb", color: "#fff" },
         ghost:   { background: "#fff", border: "#d1d5db", color: "#111827" },
-        danger:  { background: "#e11d48", border: "#e11d48", color: "#fff" },
+        danger:  { background: "#e11d48", border: "#e11d48", color: "#fff" }, // ← NUEVO
       }
       const x = map[kind]
       return {
@@ -91,9 +91,7 @@ export default function AdminHome() {
     return <span style={s.badge}>● Borrador</span>
   }
 
-  // 👉 Solo se pueden editar candidatos si la última elección está en borrador
-  const canEditCandidates = !latest || (!latest.opened_at && !latest.closed_at)
-
+  // Abre el configurador; si no hay elección, crea una y navega
   const goConfigureElection = async () => {
     try {
       if (latest?.id) {
@@ -106,13 +104,14 @@ export default function AdminHome() {
         .select("id, title, opened_at, closed_at, created_at")
         .single()
       if (error) throw error
-      setLatest(data)
+      setLatest(data) // ← sync
       nav(`/admin/elections/${data.id}/config`)
     } catch (e) {
       setError(e.message || "No se pudo abrir el configurador")
     }
   }
 
+  // ← NUEVO: Cerrar votación de la última elección
   const closeElection = async () => {
     if (!latest?.id) { setError("No hay elección para cerrar."); return }
     if (!latest.opened_at) { setError("La elección aún no está abierta."); return }
@@ -129,6 +128,7 @@ export default function AdminHome() {
         .eq("id", latest.id)
       if (error) throw error
 
+      // Actualiza UI local
       setLatest(prev => prev ? { ...prev, closed_at: now } : prev)
     } catch (e) {
       setError(e.message || "No se pudo cerrar la votación")
@@ -174,39 +174,19 @@ export default function AdminHome() {
 
           <h3 style={{ fontWeight: 700, marginTop: 24, marginBottom: 8 }}>Accesos rápidos</h3>
           <div style={s.btnGrid}>
-            <button style={s.btn("primary")} onClick={() => nav("/admin/members")}>
-              ➕ Miembros
-            </button>
-
-            {/* 🔒 Candidatos bloqueado si la elección no está en borrador */}
-            <button
-              style={{
-                ...s.btn("primary"),
-                ...(canEditCandidates ? {} : { opacity: 0.5, cursor: "not-allowed" })
-              }}
-              onClick={() => {
-                if (!canEditCandidates) {
-                  alert("La edición de candidatos está bloqueada porque la última elección está abierta o cerrada.")
-                  return
-                }
-                nav("/admin/candidates")
-              }}
-              disabled={!canEditCandidates}
-            >
-              🧑‍💼 Candidatos
-            </button>
-
+            <button style={s.btn("primary")} onClick={() => nav("/admin/members")}>➕ Miembros</button>
+            <button style={s.btn("primary")} onClick={() => nav("/admin/candidates")}>🧑‍💼 Candidatos</button>
             <Link to="/admin/elections" style={s.btn("ghost")}>🗳️ Elecciones</Link>
             <Link to="/admin/results"   style={s.btn("ghost")}>📈 Resultados</Link>
 
+            {/* Configurar elección (crea si no hay) */}
             <button style={s.btn("primary")} onClick={goConfigureElection}>
               ⚙️ Configurar elección
             </button>
 
-            <button style={s.btn("primary")} onClick={()=> nav("/admin/checkin")}>
-              📝 Check-In / Asistencia
-            </button>
+<button style={s.btn("primary")} onClick={()=> nav("/admin/checkin")}>📝 Check-In / Asistencia</button>
 
+            {/* ← NUEVO: Cerrar votación */}
             <button
               style={s.btn("danger")}
               onClick={closeElection}
@@ -220,12 +200,6 @@ export default function AdminHome() {
           <p style={{ color:"#6b7280", fontSize: 12, marginTop: 10 }}>
             Tip: el botón cierra la <b>última elección</b> (más reciente). Puedes reabrirla desde Configurar.
           </p>
-
-          {!canEditCandidates && (
-            <p style={{ color:"#b91c1c", fontSize: 12, marginTop: 4 }}>
-              
-            </p>
-          )}
         </div>
       </div>
     </div>

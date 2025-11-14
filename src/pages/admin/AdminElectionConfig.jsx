@@ -1,161 +1,181 @@
-// src/pages/admin/AdminElectionConfig.jsx
-import { useEffect, useMemo, useState, useCallback } from "react"
-import { useParams, Link } from "react-router-dom"
+// src/pages/admin/AdminElectionList.jsx
+import { useEffect, useMemo, useState } from "react"
 import { supabase } from "../../lib/supabase"
 
-export default function AdminElectionConfig() {
-  const { id } = useParams()
+export default function AdminElectionList(){
+  const [rows, setRows]       = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError]     = useState("")
+  const [msg, setMsg]         = useState("")
 
-  // ---------- Estilos ----------
+  const [saving, setSaving]   = useState(false)
+
+  // Elección seleccionada (null = modo crear)
+  const [selectedId, setSelectedId] = useState(null)
+
+  const [form, setForm] = useState({
+    title: "",
+    required_male: 0,
+    required_female: 0,
+    notes: "",
+    status: "borrador",
+    opened_at: null,
+    closed_at: null,
+    created_at: null,
+  })
+
+  const isCreateMode = !selectedId
+
   const s = useMemo(() => {
     const card = {
       background:"#fff",
       border:"1px solid #e5e7eb",
       borderRadius:16,
-      padding:20,
-      boxShadow:"0 6px 24px rgba(15,23,42,0.06)"
+      boxShadow:"0 8px 24px rgba(15,23,42,.06)",
     }
-    const inputBase = {
-      width:"100%", padding:"12px 14px", fontSize:14, borderRadius:10,
-      border:"1px solid #d1d5db", background:"#fff",
-      outline:"none", transition:"box-shadow .15s, border-color .15s"
-    }
-    const focusable = (err=false)=>({
-      ...inputBase,
-      border: `1px solid ${err ? "#ef4444" : "#d1d5db"}`,
-      boxShadow: err ? "0 0 0 4px rgba(239,68,68,.12)" : "none"
-    })
     return {
-      page:{ fontFamily:"system-ui,-apple-system,Segoe UI,Roboto",
-        background:"linear-gradient(180deg,#f8fafc, #f3f4f6)", minHeight:"100vh" },
-      wrap:{ maxWidth:1100, margin:"0 auto", padding:"24px 16px" },
+      page:{ fontFamily:"system-ui,-apple-system,Segoe UI,Roboto", background:"#f3f4f6", minHeight:"100vh" },
+      wrap:{ maxWidth:1100, margin:"0 auto", padding:"24px 16px", display:"flex", flexDirection:"column", gap:16 },
 
-      // Header
-      head:{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 },
-      title:{ fontSize:22, fontWeight:800, color:"#0f172a" },
-      crumb:{ fontSize:13, color:"#64748b" },
-      badge:{ display:"inline-flex", alignItems:"center", gap:8, padding:"6px 12px",
-        borderRadius:999, fontSize:12, border:"1px solid #e5e7eb", background:"#f8fafc", color:"#334155" },
-      badgeGreen:{ background:"#ecfdf5", color:"#065f46", border:"1px solid #a7f3d0" },
-      badgeRed:{ background:"#fef2f2", color:"#991b1b", border:"1px solid #fecaca" },
-      badgeGray:{ background:"#f1f5f9", color:"#334155", border:"1px solid #e2e8f0" },
-      link:{ color:"#2563eb", textDecoration:"none" },
-
-      // Layout
-      grid2:{ display:"grid", gridTemplateColumns:"1.25fr .75fr", gap:16 },
       card,
+      headerRow:{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"14px 16px", borderBottom:"1px solid #e5e7eb" },
+      headerTitle:{ fontWeight:800, fontSize:18 },
+      subHeader:{ fontSize:12, color:"#6b7280", marginTop:2 },
+      cardBody:{ padding:16 },
 
-      h:{ fontSize:16, fontWeight:800, color:"#0f172a", marginBottom:10 },
-      label:{ display:"block", fontSize:13, color:"#334155", marginBottom:6, fontWeight:600 },
-      hint:{ fontSize:12, color:"#64748b", marginTop:6 },
+      table:{ width:"100%", borderCollapse:"collapse", fontSize:14 },
+      th:{ textAlign:"left", padding:"8px 6px", borderBottom:"1px solid #e5e7eb", color:"#6b7280", fontWeight:600 },
+      td:{ padding:"8px 6px", borderBottom:"1px solid #e5e7eb", cursor:"pointer" },
+
+      rowActive:{ background:"#eff6ff" },
+
+      statusBadge:(status)=>{
+        const st = (status || "").toLowerCase()
+        let bg="#f1f5f9", color="#0f172a", border="#e2e8f0", text="Borrador"
+        if (st === "abierta"){
+          bg="#ecfdf5"; color="#065f46"; border="#6ee7b7"; text="Abierta"
+        } else if (st === "cerrada"){
+          bg="#fef2f2"; color:"#b91c1c"; border:"#fecaca"; text="Cerrada"
+        }
+        return {
+          style:{
+            display:"inline-flex", padding:"2px 8px", borderRadius:999,
+            fontSize:12, fontWeight:700, background:bg, color, border:`1px solid ${border}`
+          },
+          text
+        }
+      },
+
+      btnPrimary:{
+        display:"inline-flex", alignItems:"center", justifyContent:"center",
+        padding:"8px 14px", borderRadius:10, border:"1px solid #2563eb",
+        background:"#2563eb", color:"#fff", fontSize:13, fontWeight:700,
+        textDecoration:"none", cursor:"pointer"
+      },
+      btnGhost:{
+        display:"inline-flex", alignItems:"center", justifyContent:"center",
+        padding:"8px 10px", borderRadius:10, border:"1px solid #d1d5db",
+        background:"#fff", color:"#111827", fontSize:12, fontWeight:600,
+        cursor:"pointer"
+      },
+
+      label:{ display:"block", fontSize:13, fontWeight:600, color:"#374151", marginBottom:4 },
+      hint:{ fontSize:11, color:"#6b7280", marginTop:2 },
+      input:{ width:"100%", padding:"10px 12px", border:"1px solid #d1d5db", borderRadius:10, outline:"none", fontSize:14, background:"#fff" },
+      ta:{ width:"100%", minHeight:80, padding:"10px 12px", border:"1px solid #d1d5db", borderRadius:10, outline:"none", fontSize:14, resize:"vertical" },
       row2:{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 },
 
-      input: inputBase,
-      focus: focusable(),
+      sticky:{ marginTop:14, display:"flex", gap:10, flexWrap:"wrap", alignItems:"center" },
+      muted:{ fontSize:12, color:"#6b7280" },
+      err:{ color:"#b91c1c", fontSize:13, marginTop:8 },
+      ok:{ color:"#047857", fontSize:13, marginTop:8 },
 
-      // KPIs
-      kpis:{ display:"grid", gap:12, gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))" },
-      kpi:{ padding:"14px", borderRadius:12, border:"1px solid #e5e7eb", background:"#f8fafc" },
-      kpiVal:{ fontSize:22, fontWeight:900, color:"#0f172a" },
-      kpiLbl:{ fontSize:12, color:"#64748b", marginTop:2 },
-
-      // Actions sticky
-      sticky:{ position:"sticky", bottom:12, marginTop:14, display:"flex", gap:10, alignItems:"center",
-        background:"transparent", padding:"0", flexWrap:"wrap" },
-
-      btn:{ padding:"10px 14px", borderRadius:12, border:"1px solid #d1d5db", background:"#fff",
-        cursor:"pointer", fontSize:14, fontWeight:700, color:"#0f172a" },
-      btnPrimary:{ padding:"10px 14px", borderRadius:12, border:"1px solid #2563eb",
-        background:"#2563eb", color:"#fff", cursor:"pointer", fontSize:14, fontWeight:800 },
-      btnDanger:{ padding:"10px 14px", borderRadius:12, border:"1px solid #ef4444",
-        background:"#ef4444", color:"#fff", cursor:"pointer", fontSize:14, fontWeight:800 },
-
-      // Alerts
-      muted:{ fontSize:13, color:"#64748b" },
-      err:{ background:"#fef2f2", border:"1px solid #fecaca", color:"#991b1b",
-        padding:12, borderRadius:10, fontSize:14, marginBottom:12 },
       toastOK:{ position:"fixed", right:18, bottom:18, background:"#16a34a", color:"#fff",
         padding:"10px 14px", borderRadius:12, fontWeight:700, boxShadow:"0 8px 24px rgba(0,0,0,.15)" },
       toastERR:{ position:"fixed", right:18, bottom:18, background:"#dc2626", color:"#fff",
-        padding:"10px 14px", borderRadius:12, fontWeight:700, boxShadow:"0 8px 24px rgba(0,0,0,.15)" }
+        padding:"10px 14px", borderRadius:12, fontWeight:700, boxShadow:"0 8px 24px rgba(0,0,0,.15)" },
     }
   }, [])
 
-  // ---------- Estado ----------
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState("")
   const [toast, setToast] = useState({ type:"", text:"" })
-
-  const [form, setForm] = useState({
-    title: "", required_male: 0, required_female: 0, notes: "",
-    opened_at: null, closed_at: null, created_at: null, status: null
-  })
-  const [counts, setCounts] = useState({ male:0, female:0, total:0 })
-
-  // ---------- UI helpers ----------
-  const statusBadge = useMemo(() => {
-    const st = (form.status || "").toLowerCase()
-    if (st === "abierta" && !form.closed_at) return { text:"Votación abierta", cls:s.badgeGreen }
-    if (st === "cerrada" || form.closed_at) return { text:"Cerrada", cls:s.badgeRed }
-    return { text:"Borrador", cls:s.badgeGray }
-  }, [form.status, form.closed_at, s])
-
   const showToast = (type, text) => {
     setToast({ type, text })
     setTimeout(() => setToast({ type:"", text:"" }), 1800)
   }
 
-  // ---------- Fetch ----------
-  const fetchElection = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("election")
-      .select("id,title,required_male,required_female,notes,opened_at,closed_at,created_at,status")
-      .eq("id", id)
-      .single()
-    if (error) { setError("No se pudo cargar la elección."); console.error(error); return }
-    setForm({
-      title: data.title ?? "",
-      required_male: data.required_male ?? 0,
-      required_female: data.required_female ?? 0,
-      notes: data.notes ?? "",
-      opened_at: data.opened_at,
-      closed_at: data.closed_at,
-      created_at: data.created_at,
-      status: data.status ?? null
-    })
-  }, [id])
-
-  const fetchCounts = useCallback(async () => {
-    const m = await supabase.from("candidate").select("id", { count:"exact" }).eq("election_id", id).eq("gender","M")
-    const f = await supabase.from("candidate").select("id", { count:"exact" }).eq("election_id", id).eq("gender","F")
-    const t = await supabase.from("candidate").select("id", { count:"exact" }).eq("election_id", id)
-    setCounts({ male: m.count ?? 0, female: f.count ?? 0, total: t.count ?? 0 })
-  }, [id])
+  const isClosed = !isCreateMode && (
+    (form.status || "").toLowerCase() === "cerrada" || !!form.closed_at
+  )
+  const isOpen = !isCreateMode &&
+    (form.status || "").toLowerCase() === "abierta" &&
+    !form.closed_at
+  const isReadOnly = isClosed
 
   useEffect(() => {
-    let channel
-    ;(async () => {
+    load()
+  }, [])
+
+  async function load(){
+    try {
       setLoading(true)
-      await fetchElection()
-      await fetchCounts()
+      setError("")
+      setMsg("")
+      const { data, error } = await supabase
+        .from("election")
+        .select("id,title,required_male,required_female,created_at,opened_at,closed_at,status,notes")
+        .order("created_at", { ascending:false })
+      if (error) throw error
+      setRows(data || [])
+
+      // Si hay selección, refrescamos el form según la fila actual
+      if (selectedId) {
+        const found = (data || []).find(r => r.id === selectedId)
+        if (found) fillFormFromRow(found)
+        else clearForm()
+      }
+    } catch (e) {
+      console.error(e)
+      setError("No se pudo cargar el listado.")
+    } finally {
       setLoading(false)
+    }
+  }
 
-      channel = supabase
-        .channel(`candidate-changes-${id}`)
-        .on(
-          "postgres_changes",
-          { event:"*", schema:"public", table:"candidate", filter:`election_id=eq.${id}` },
-          () => fetchCounts()
-        )
-        .subscribe()
-    })()
-    return () => { if (channel) supabase.removeChannel(channel) }
-  }, [id, fetchElection, fetchCounts])
+  function fillFormFromRow(r){
+    setSelectedId(r.id)
+    setForm({
+      title: r.title ?? "",
+      required_male: r.required_male ?? 0,
+      required_female: r.required_female ?? 0,
+      notes: r.notes ?? "",
+      status: r.status ?? "borrador",
+      opened_at: r.opened_at,
+      closed_at: r.closed_at,
+      created_at: r.created_at,
+    })
+  }
 
-  // ---------- Handlers ----------
-  const handleChange = (e) => {
+  function clearForm(){
+    setSelectedId(null)
+    setForm({
+      title:"",
+      required_male:0,
+      required_female:0,
+      notes:"",
+      status:"borrador",
+      opened_at:null,
+      closed_at:null,
+      created_at:null,
+    })
+  }
+
+  function handleRowClick(r){
+    fillFormFromRow(r)
+  }
+
+  function handleChange(e){
     const { name, value } = e.target
+    if (isReadOnly) return
     setForm(f => ({
       ...f,
       [name]: name.startsWith("required_")
@@ -164,29 +184,80 @@ export default function AdminElectionConfig() {
     }))
   }
 
-  const handleSave = async () => {
-    setSaving(true); setError("")
-    const { error } = await supabase
-      .from("election")
-      .update({
-        title: form.title.trim(),
-        required_male: Number(form.required_male) || 0,
-        required_female: Number(form.required_female) || 0,
-        notes: form.notes
-      })
-      .eq("id", id)
-    setSaving(false)
-    if (error) { setError("No se pudo guardar."); showToast("err","Error al guardar"); }
-    else showToast("ok","Cambios guardados")
+  async function handleSave(){
+    if (isReadOnly) {
+      showToast("err","La elección está cerrada. No se puede modificar.")
+      return
+    }
+
+    setSaving(true)
+    setError("")
+    const title = form.title.trim()
+    if (!title){
+      setSaving(false)
+      setError("El título es obligatorio.")
+      showToast("err","Agrega un título a la elección.")
+      return
+    }
+
+    try {
+      if (isCreateMode){
+        // Insert
+        const { data, error } = await supabase
+          .from("election")
+          .insert({
+            title,
+            required_male: Number(form.required_male) || 0,
+            required_female: Number(form.required_female) || 0,
+            notes: form.notes || "",
+            status: "borrador"
+          })
+          .select("id, title, required_male, required_female, created_at, opened_at, closed_at, status, notes")
+          .single()
+        if (error) throw error
+
+        setRows(prev => [data, ...prev])
+        fillFormFromRow(data)
+        showToast("ok","Elección creada.")
+      } else {
+        // Update
+        const { error } = await supabase
+          .from("election")
+          .update({
+            title,
+            required_male: Number(form.required_male) || 0,
+            required_female: Number(form.required_female) || 0,
+            notes: form.notes
+          })
+          .eq("id", selectedId)
+        if (error) throw error
+
+        await load()
+        showToast("ok","Cambios guardados.")
+      }
+    } catch (e) {
+      console.error(e)
+      setError("No se pudo guardar.")
+      showToast("err","Error al guardar.")
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const isOpen = (form.status || "").toLowerCase() === "abierta" && !form.closed_at
+  async function toggleOpenClose(){
+    if (isCreateMode){
+      showToast("err","Primero guarda la elección.")
+      return
+    }
+    if (isClosed){
+      showToast("err","La elección está cerrada y no se puede reabrir.")
+      return
+    }
 
-  const toggleOpenClose = async () => {
-    setSaving(true); setError("")
+    setSaving(true)
+    setError("")
     try {
-      if (!isOpen) {
-        // ABRIR VOTACIÓN
+      if (!isOpen){
         const { error } = await supabase
           .from("election")
           .update({
@@ -194,167 +265,236 @@ export default function AdminElectionConfig() {
             opened_at: form.opened_at ?? new Date().toISOString(),
             closed_at: null
           })
-          .eq("id", id)
+          .eq("id", selectedId)
         if (error) throw error
-        showToast("ok","✅ Votación abierta")
+        showToast("ok","✅ Votación abierta.")
       } else {
-        // CERRAR VOTACIÓN
         const { error } = await supabase
           .from("election")
           .update({
             status: "cerrada",
             closed_at: new Date().toISOString()
           })
-          .eq("id", id)
+          .eq("id", selectedId)
         if (error) throw error
-        showToast("ok","🛑 Votación cerrada")
+        showToast("ok","🛑 Votación cerrada.")
       }
-      await fetchElection()
+      await load()
     } catch (e) {
       console.error(e)
-      setError("No se pudo actualizar el estado de la elección.")
-      showToast("err","Error al cambiar estado")
+      setError("No se pudo actualizar el estado.")
+      showToast("err","Error al cambiar estado.")
     } finally {
       setSaving(false)
     }
   }
 
-  // ---------- UI ----------
+  const currentStatusBadge = s.statusBadge(form.status)
+
   return (
     <div style={s.page}>
       <div style={s.wrap}>
-        {/* Header */}
-        <div style={s.head}>
-          <div>
-            <div style={s.crumb}>
-              <Link to="/admin/elections" style={s.link}>Elecciones</Link> · Configurar
+
+        {/* 1) FORMULARIO ARRIBA */}
+        <div style={s.card}>
+          <div style={s.headerRow}>
+            <div>
+              <div style={s.headerTitle}>
+                {isCreateMode ? "Nueva elección" : "Configurar elección"}
+              </div>
+              <div style={s.subHeader}>
+                {isCreateMode
+                  ? "Rellena los datos y guarda para crear el proceso."
+                  : (
+                    <>
+                      ID: {selectedId} · Estado:{" "}
+                      <span style={{...currentStatusBadge.style, marginLeft:4}}>
+                        {currentStatusBadge.text}
+                      </span>
+                    </>
+                  )}
+              </div>
             </div>
-            <div style={s.title}>Configurar elección</div>
-            <div style={{ fontSize:12, color:"#94a3b8", marginTop:2 }}>ID: {id}</div>
+            <div>
+              <button
+                type="button"
+                style={s.btnGhost}
+                onClick={clearForm}
+              >
+                New
+              </button>
+            </div>
           </div>
-          <span style={{...s.badge, ...(statusBadge.cls||{})}}>● {statusBadge.text}</span>
-        </div>
 
-        {error && <div style={s.err}>{error}</div>}
+          <div style={s.cardBody}>
+            {isClosed && !isCreateMode && (
+              <div style={s.err}>
+                Esta elección está <b>cerrada</b>. Solo puedes verla; no se puede modificar ni reabrir.
+              </div>
+            )}
 
-        {loading ? (
-          <div style={s.card}><div style={s.muted}>Cargando…</div></div>
-        ) : (
-          <div style={s.grid2}>
-            {/* Reglas */}
-            <div style={s.card}>
-              <div style={s.h}>Reglas</div>
-
+            <div style={{marginBottom:10}}>
               <label style={s.label}>Título</label>
               <input
-                name="title" value={form.title} onChange={handleChange}
+                name="title"
+                value={form.title}
+                onChange={handleChange}
                 placeholder="Elección de Diáconos 2025"
-                style={s.focus}
-                onFocus={e => e.currentTarget.style.boxShadow="0 0 0 4px rgba(37,99,235,.15)"}
-                onBlur={e => e.currentTarget.style.boxShadow="none"}
+                style={s.input}
+                disabled={isReadOnly}
               />
-              <div style={s.hint}>Nombre visible en boletas y resultados.</div>
+              <div style={s.hint}>Nombre visible en la boleta y en los resultados.</div>
+            </div>
 
-              <div style={{ height:12 }} />
-
-              <div style={s.row2}>
-                <div>
-                  <label style={s.label}>Cupo Hombres</label>
-                  <input
-                    type="number" name="required_male" min={0}
-                    value={form.required_male} onChange={handleChange}
-                    style={s.focus}
-                    onFocus={e => e.currentTarget.style.boxShadow="0 0 0 4px rgba(37,99,235,.15)"}
-                    onBlur={e => e.currentTarget.style.boxShadow="none"}
-                  />
-                  <div style={s.hint}>Cantidad de hombres a elegir.</div>
-                </div>
-                <div>
-                  <label style={s.label}>Cupo Mujeres</label>
-                  <input
-                    type="number" name="required_female" min={0}
-                    value={form.required_female} onChange={handleChange}
-                    style={s.focus}
-                    onFocus={e => e.currentTarget.style.boxShadow="0 0 0 4px rgba(37,99,235,.15)"}
-                    onBlur={e => e.currentTarget.style.boxShadow="none"}
-                  />
-                  <div style={s.hint}>Cantidad de mujeres a elegir.</div>
-                </div>
+            <div style={{...s.row2, marginBottom:10}}>
+              <div>
+                <label style={s.label}>Cupo Hombres</label>
+                <input
+                  type="number"
+                  name="required_male"
+                  value={form.required_male}
+                  onChange={handleChange}
+                  style={s.input}
+                  disabled={isReadOnly}
+                  min={0}
+                />
+                <div style={s.hint}>Cantidad de hombres a elegir.</div>
               </div>
+              <div>
+                <label style={s.label}>Cupo Mujeres</label>
+                <input
+                  type="number"
+                  name="required_female"
+                  value={form.required_female}
+                  onChange={handleChange}
+                  style={s.input}
+                  disabled={isReadOnly}
+                  min={0}
+                />
+                <div style={s.hint}>Cantidad de mujeres a elegir.</div>
+              </div>
+            </div>
 
-              <div style={{ height:12 }} />
-
+            <div style={{marginBottom:10}}>
               <label style={s.label}>Notas pastorales</label>
               <textarea
-                name="notes" value={form.notes} onChange={handleChange}
-                placeholder="Indicaciones, requisitos y consideraciones…"
-                style={{ ...s.input, minHeight:120 }}
-                onFocus={e => e.currentTarget.style.boxShadow="0 0 0 4px rgba(37,99,235,.15)"}
-                onBlur={e => e.currentTarget.style.boxShadow="none"}
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+                style={s.ta}
+                placeholder="Indicaciones, requisitos, observaciones internas…"
+                disabled={isReadOnly}
               />
-              <div style={s.hint}>No se muestran a los votantes (solo guía interna).</div>
+              <div style={s.hint}>No se muestran a los votantes (solo para el equipo pastoral).</div>
+            </div>
 
-              {/* Acciones sticky */}
-              <div style={s.sticky}>
-                <button style={s.btnPrimary} onClick={handleSave} disabled={saving}>
-                  {saving ? "Guardando…" : "Guardar cambios"}
-                </button>
+            <div style={s.sticky}>
+              <button
+                type="button"
+                style={s.btnPrimary}
+                onClick={handleSave}
+                disabled={saving || isReadOnly}
+                title={isReadOnly ? "Elección cerrada: no se puede modificar" : ""}
+              >
+                {saving
+                  ? (isCreateMode ? "Creando…" : "Guardando…")
+                  : (isCreateMode ? "Crear elección" : "Guardar cambios")}
+              </button>
 
-                <button
-                  style={isOpen ? s.btnDanger : s.btnPrimary}
-                  onClick={toggleOpenClose}
-                  disabled={saving}
-                >
-                  {saving ? "Procesando…" : (isOpen ? "Cerrar votación" : "Abrir votación")}
-                </button>
+              <button
+                type="button"
+                style={s.btnGhost}
+                onClick={toggleOpenClose}
+                disabled={saving || isCreateMode || isClosed}
+                title={
+                  isCreateMode
+                    ? "Primero guarda la elección"
+                    : isClosed
+                    ? "Elección cerrada definitivamente"
+                    : ""
+                }
+              >
+                {isClosed
+                  ? "Cerrada"
+                  : (isOpen ? "Cerrar votación" : "Abrir votación")}
+              </button>
 
-                <button style={s.btn} onClick={fetchCounts} title="Refrescar KPIs">Refrescar</button>
-
+              {!isCreateMode && (
                 <span style={s.muted}>
-                  {form.opened_at && <>Oficial abierta desde <b>{new Date(form.opened_at).toLocaleString()}</b></>}
+                  {form.opened_at && <>Abierta desde <b>{new Date(form.opened_at).toLocaleString()}</b></>}
                   {form.closed_at && <> · Cerrada el <b>{new Date(form.closed_at).toLocaleString()}</b></>}
                 </span>
-              </div>
+              )}
             </div>
 
-            {/* Resumen & Candidatos */}
-            <div style={s.card}>
-              <div style={s.h}>Resumen y candidatos</div>
-              <div style={s.kpis}>
-                <div style={s.kpi}>
-                  <div style={s.kpiVal}>{counts.total}</div>
-                  <div style={s.kpiLbl}>Candidatos totales</div>
-                </div>
-                <div style={s.kpi}>
-                  <div style={s.kpiVal}>{counts.male}</div>
-                  <div style={s.kpiLbl}>Hombres postulados</div>
-                </div>
-                <div style={s.kpi}>
-                  <div style={s.kpiVal}>{counts.female}</div>
-                  <div style={s.kpiLbl}>Mujeres postuladas</div>
-                </div>
-                <div style={s.kpi}>
-                  <div style={s.kpiVal}>{form.required_male}</div>
-                  <div style={s.kpiLbl}>Cupos hombres</div>
-                </div>
-                <div style={s.kpi}>
-                  <div style={s.kpiVal}>{form.required_female}</div>
-                  <div style={s.kpiLbl}>Cupos mujeres</div>
-                </div>
-              </div>
+            {error && <div style={s.err}>{error}</div>}
+            {msg && <div style={s.ok}>{msg}</div>}
+          </div>
+        </div>
 
-              <div style={{ height:12 }} />
-              <div style={{ display:"flex", gap:10, alignItems:"center", flexWrap:"wrap" }}>
-                <Link to={`/admin/candidates?election=${id}`} style={s.link}>👥 Gestionar candidatos →</Link>
-                {!form.opened_at && (
-                  <span style={{ fontSize:12, color:"#64748b" }}>
-                    Consejo: define candidatos y cupos antes de abrir la votación.
-                  </span>
-                )}
+        {/* 2) LISTADO ABAJO */}
+        <div style={s.card}>
+          <div style={s.headerRow}>
+            <div>
+              <div style={s.headerTitle}>Listado de elecciones</div>
+              <div style={s.subHeader}>
+                Haz clic en una fila para cargarla en el formulario de arriba.
               </div>
+            </div>
+            <div>
+              <button type="button" style={s.btnGhost} onClick={load}>
+                Actualizar
+              </button>
             </div>
           </div>
-        )}
+
+          <div style={s.cardBody}>
+            {loading && <div>Cargando…</div>}
+            {error && <div style={s.err}>{error}</div>}
+            {!loading && !error && rows.length === 0 && (
+              <div style={{fontSize:14, color:"#6b7280"}}>
+                No hay elecciones aún. Crea una arriba con el formulario.
+              </div>
+            )}
+
+            {!loading && !error && rows.length > 0 && (
+              <table style={s.table}>
+                <thead>
+                  <tr>
+                    <th style={s.th}>Título</th>
+                    <th style={s.th}>Cupos</th>
+                    <th style={s.th}>Estado</th>
+                    <th style={s.th}>Creada</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map(r => {
+                    const badge = s.statusBadge(r.status)
+                    const isActive = selectedId === r.id
+                    return (
+                      <tr
+                        key={r.id}
+                        onClick={() => handleRowClick(r)}
+                        style={isActive ? s.rowActive : undefined}
+                      >
+                        <td style={s.td}>{r.title}</td>
+                        <td style={s.td}>
+                          {r.required_male ?? 0} H / {r.required_female ?? 0} M
+                        </td>
+                        <td style={s.td}>
+                          <span style={badge.style}>{badge.text}</span>
+                        </td>
+                        <td style={s.td}>
+                          {r.created_at && new Date(r.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
 
         {/* Toasts */}
         {!!toast.text && (

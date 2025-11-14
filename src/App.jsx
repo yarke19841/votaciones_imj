@@ -18,7 +18,7 @@ import AdminResults from "./pages/admin/AdminResults.jsx"
 import AdminCheckIn from "./pages/admin/AdminCheckIn.jsx"
 import AdminCandidateList from "./pages/admin/AdminCandidateList.jsx"
 import AdminVoterEligibility from "./pages/admin/AdminVoterElegibility.jsx"
-import AdminQuickCheckIn from "./pages/admin/AdminQuickCheckIn.jsx"
+import AdminQuickCheckIn from "./pages/admin/AdminCheckIn.jsx"
 
 export default function App() {
   return (
