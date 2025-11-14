@@ -230,7 +230,7 @@ export default function AdminCheckIn() {
               <div style={{ minWidth: 160 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Tipo de jornada</div>
                 <select style={s.select} value={sessionKind} onChange={e => setSessionKind(e.target.value)}>
-                  <option value="practica">Práctica</option>
+                  
                   <option value="final">Final</option>
                 </select>
               </div>

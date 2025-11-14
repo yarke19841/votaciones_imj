@@ -201,17 +201,53 @@ export default function AdminCandidateList(){
     return publicUrl
   }
 
+  // Subir foto para NUEVO candidato (form)
   async function uploadPhoto(){
     if (!file){ setError("Selecciona una imagen primero."); return }
     if (!selElection){ setError("Selecciona una elección."); return }
     setError(""); setMsg(""); setBusy(true)
     try {
-      const url = await uploadPhotoInternal({ file, electionId: selElection, fullName: form.full_name })
+      const url = await uploadPhotoInternal({ file, electionId: selElection, fullName: form.full_name || "candidato" })
       setForm(prev => ({ ...prev, photo_url: url }))
       setMsg("✅ Foto subida correctamente.")
     } catch (err) {
       console.error(err); setError("No se pudo subir la foto. Revisa el bucket o el archivo.")
     } finally { setBusy(false) }
+  }
+
+  // 🔹 Cambiar foto de un candidato existente
+  async function changeCandidatePhoto(e, c){
+    const f = e.target.files?.[0] || null
+    if (!f) return
+    if (!c?.id) return
+
+    setError(""); setMsg(""); setBusy(true)
+    try {
+      // Subimos al bucket
+      const url = await uploadPhotoInternal({
+        file: f,
+        electionId: c.election_id,
+        fullName: c.full_name || "candidato"
+      })
+
+      // Actualizamos el candidato
+      const { error } = await supabase
+        .from("candidate")
+        .update({ photo_url: url })
+        .eq("id", c.id)
+
+      if (error) throw error
+
+      setMsg(`✅ Foto actualizada para ${c.full_name}.`)
+      await loadCandidates()
+    } catch (err) {
+      console.error(err)
+      setError("No se pudo actualizar la foto del candidato.")
+    } finally {
+      setBusy(false)
+      // Limpia el input para que se pueda volver a elegir el mismo archivo si se desea
+      e.target.value = ""
+    }
   }
 
   async function createCandidate(e){
@@ -269,29 +305,28 @@ export default function AdminCandidateList(){
   }
 
   // UPDATE robusto: verifica filas afectadas y refresca
- async function moveCandidatePool(c, target){
-  if (c.pool === target) return
-  setBusy(true); setError(""); setMsg("")
-  try{
-    const { error } = await supabase
-      .from("candidate")
-      .update({ pool: target })
-      .eq("id", c.id)     // ← sin .select()
+  async function moveCandidatePool(c, target){
+    if (c.pool === target) return
+    setBusy(true); setError(""); setMsg("")
+    try{
+      const { error } = await supabase
+        .from("candidate")
+        .update({ pool: target })
+        .eq("id", c.id)
 
-    if (error) {
-      console.error("[UPDATE ERROR]", error)
-      setError(`No se pudo mover: ${error.message}`)
-      return
-    }
+      if (error) {
+        console.error("[UPDATE ERROR]", error)
+        setError(`No se pudo mover: ${error.message}`)
+        return
+      }
 
-    setMsg(`✅ "${c.full_name}" movido a ${target === "simulacro" ? "Simulacro" : "Oficial"}.`)
-    await loadCandidates()
-  } catch(err){
-    console.error("[UPDATE CATCH]", err)
-    setError("Error inesperado moviendo el candidato.")
-  } finally { setBusy(false) }
-}
-
+      setMsg(`✅ "${c.full_name}" movido a ${target === "simulacro" ? "Simulacro" : "Oficial"}.`)
+      await loadCandidates()
+    } catch(err){
+      console.error("[UPDATE CATCH]", err)
+      setError("Error inesperado moviendo el candidato.")
+    } finally { setBusy(false) }
+  }
 
   const counts = useMemo(()=>{
     const male = candidates.filter(c => c.gender === "M" && c.active).length
@@ -479,6 +514,17 @@ export default function AdminCandidateList(){
                         </span>
                         <span style={s.tag()}>{c.gender}</span>
                       </div>
+                    </div>
+
+                    {/* 🔹 Cambiar foto del candidato */}
+                    <div style={{marginTop:8}}>
+                      <div style={{fontSize:12, fontWeight:700, marginBottom:4}}>Cambiar foto</div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e)=>changeCandidatePhoto(e, c)}
+                        style={{fontSize:12}}
+                      />
                     </div>
 
                     <div style={{display:"flex", gap:8, marginTop:10, flexWrap:"wrap"}}>
