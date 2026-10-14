@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { supabase, isQaEnvironment } from '../../lib/supabase'
+import { currentPosition } from '../../lib/voterFlow'
 import { getAdminSession, logoutAdmin } from '../../lib/authAdmin'
 import CandidatePhoto from '../../components/CandidatePhoto'
 import { classifyResults } from '../../lib/adminResults'
@@ -90,6 +91,18 @@ export default function AdminHome() {
       setSelectedElection(id); setElection({ ...election, id })
     })
   }
+  async function useQaLocation() {
+    if (!isQaEnvironment || !isAdmin || !current) return
+    return run(async () => {
+      const p = await currentPosition()
+      await call('voting_admin_save_election', {
+        p_id: current.id, p_year: current.election_year, p_title: current.title,
+        p_male_slots: current.male_slots, p_female_slots: current.female_slots,
+        p_latitude: p.lat, p_longitude: p.lng, p_radius_meters: current.radius_meters || 150,
+      })
+      setElection({ ...electionDraft(current), lat: p.lat, lng: p.lng, radius: current.radius_meters || 150 })
+    }, 'QA configurada en tu ubicación. Vuelve al ingreso del votante; la ubicación seguirá comprobándose al entrar y al enviar.')
+  }
   async function saveCandidate(event) {
     event.preventDefault()
     return run(async () => {
@@ -144,6 +157,7 @@ export default function AdminHome() {
   return <main className="admin-page">
     <header className="admin-header"><div><p className="eyebrow">Ministerio Jezreel</p><h1>{isAdmin ? 'Administración de votaciones' : 'Habilitación de votantes'}</h1><p>{role === 'pastor' ? 'Pastor territorial · acceso limitado a tu territorio' : role === 'leader' ? 'Líder · acceso limitado a tu listado' : 'Elecciones anuales · voto secreto'}</p></div><button className="secondary" onClick={async () => { await logoutAdmin(); location.href = '/admin/login' }}>Salir</button></header>
     {msg && <p className="notice" role="status">{msg}</p>}
+    {isQaEnvironment && isAdmin && <section className="qa-tools"><h2>Preparar la prueba en tu ubicación</h2><p>Este botón cambia solo el punto de la elección seleccionada en QA. Permite probar asistencia, espera y voto desde donde estás, conservando el radio y el GPS real. No modifica la base de producción.</p><button disabled={busy || !current} onClick={useQaLocation}>Probar aquí con mi ubicación</button></section>}
     <section className="card election-picker"><label>Elección seleccionada<select value={selectedElection} onChange={e => setSelectedElection(e.target.value)}><option value="">Seleccionar…</option>{data.elections.map(e => <option key={e.id} value={e.id}>{e.election_year} · {e.title}</option>)}</select></label><button className="secondary" disabled={busy || !role} onClick={() => run(async () => {}, 'Datos actualizados.')}>Actualizar datos</button></section>
     <section className="admin-grid">
       {isAdmin && <article className="card"><h2>Elección y ubicación</h2><div className="actions"><button className="secondary" onClick={() => setElection(blankElection())}>Nueva elección</button><button className="secondary" disabled={!current} onClick={() => setElection(electionDraft(current))}>Editar la seleccionada</button></div><form onSubmit={saveElection}><div className="form-grid">
