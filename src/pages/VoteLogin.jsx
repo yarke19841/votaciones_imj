@@ -1,134 +1,54 @@
-import { useState, useEffect } from "react"
-import { useNavigate, Link } from "react-router-dom"   // 👈 agregamos Link
-import { supabase } from "../lib/supabase"
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { currentPosition, voterMessages as messages } from '../lib/voterFlow'
 
 export default function VoteLogin() {
-  useEffect(() => { console.log("✅ Renderizando VoteLogin") }, [])
-
-  const [cedula, setCedula] = useState("")
-  const [errorMsg, setErrorMsg] = useState("")
-  const navigate = useNavigate()
-
-  async function handleContinue() {
+  const nav = useNavigate(), timer = useRef(null), checking = useRef(false)
+  const [cedula, setCedula] = useState(''), [waiting, setWaiting] = useState(false)
+  const [msg, setMsg] = useState(''), [busy, setBusy] = useState(false), [enabled, setEnabled] = useState(false)
+  useEffect(() => () => clearInterval(timer.current), [])
+  async function checkBallot(token) {
+    if (checking.current) return
+    checking.current = true
     try {
-      setErrorMsg("")
-      const c = cedula.trim()
-      if (!c) { setErrorMsg("Ingresa tu cédula."); return }
-
-      // 1) Elección abierta
-      const { data: election, error: eErr } = await supabase
-        .from("election")
-        .select("id,title,required_male,required_female,status")
-        .eq("status","abierta")
-        .order("created_at",{ ascending:false })
-        .limit(1)
-        .single()
-      if (eErr || !election) { setErrorMsg("No hay una elección abierta."); return }
-
-      // 2) Miembro por cédula
-      const { data: member, error: mErr } = await supabase
-        .from("member")
-        .select("*")
-        .eq("cedula", c)
-        .maybeSingle()
-      if (mErr) { setErrorMsg("Error al validar tu cédula."); return }
-      if (!member) { setErrorMsg("No estás registrado. Ve a mesa de registro."); return }
-
-      // 2.1) Miembro ACTIVO
-      const statusStr = typeof member.status === "string" ? member.status.toLowerCase().trim() : null
-      const resolvedActive =
-        (typeof member.is_active === "boolean" ? member.is_active : null) ??
-        (typeof member.active === "boolean" ? member.active : null) ??
-        (typeof member.enabled === "boolean" ? member.enabled : null) ??
-        (statusStr ? (statusStr === "activo" || statusStr === "activa") : null)
-      if (resolvedActive === false) {
-        setErrorMsg("No estás activo para votar. Acércate a mesa de registro.")
+      const p = await currentPosition()
+      const {data, error} = await supabase.rpc('voting_ballot', {p_token: token, p_latitude: p.lat, p_longitude: p.lng})
+      if (error || !data) { setMsg('No se pudo consultar la votación. Puedes intentar de nuevo.'); return }
+      if (data.state === 'ready') { clearInterval(timer.current); nav('/vote', {state: {ballot: data}}); return }
+      if (['waiting', 'not_enabled'].includes(data.state)) {
+        if (data.state === 'not_enabled') setEnabled(false)
+        setMsg(data.reason ? (messages[data.reason] || messages.waiting) : data.state === 'not_enabled' ? messages.not_enabled : messages.waiting)
         return
       }
-
-      // 3) Asistencia requerida
-      const { data: att, error: aErr } = await supabase
-        .from("attendance_voter")
-        .select("id, present")
-        .eq("election_id", election.id)
-        .eq("member_id", member.id)
-        .maybeSingle()
-      if (aErr) { setErrorMsg("Error validando tu asistencia. Acércate a mesa."); return }
-
-      const presentOk = att && (att.present === undefined || att.present === true)
-      if (!presentOk) {
-        setErrorMsg("Primero debes pasar por mesa para marcar tu asistencia.")
+      clearInterval(timer.current); setWaiting(false); setMsg(messages[data.state] || 'No puedes continuar en esta ronda.')
+    } catch { setMsg('Activa la ubicación precisa para continuar y vuelve a revisar.') }
+    finally { checking.current = false }
+  }
+  async function submit(event) {
+    event.preventDefault(); setBusy(true); setMsg('')
+    try {
+      const p = await currentPosition()
+      const {data, error} = await supabase.rpc('voting_enter', {p_cedula: cedula, p_latitude: p.lat, p_longitude: p.lng})
+      if (error || !data) { setMsg('No se pudo validar el ingreso. Puedes intentar de nuevo.'); return }
+      if (data.token) sessionStorage.setItem('voting_token', data.token)
+      if (data.state === 'ready') { await checkBallot(data.token); return }
+      if (data.state === 'waiting' && data.token && data.attended) {
+        setWaiting(true); setEnabled(data.enabled === true)
+        setMsg(data.reason ? (messages[data.reason] || messages.waiting) : messages.waiting)
+        clearInterval(timer.current); timer.current = setInterval(() => checkBallot(data.token), 10000)
         return
       }
-
-      // 4) Guardar sesión y continuar
-      sessionStorage.setItem("election", JSON.stringify(election))
-      sessionStorage.setItem("voter", JSON.stringify({
-        member_id: member.id, full_name: member.full_name, cedula: member.cedula
-      }))
-      navigate("/vote")
-    } catch {
-      setErrorMsg("Error inesperado. Intenta de nuevo.")
-    }
+      setMsg(messages[data.state] || 'No puedes continuar.')
+    } catch { setMsg('Debes permitir la ubicación precisa. La app la revisa al entrar y al enviar.') }
+    finally { setBusy(false) }
   }
-
-  // --- Estilos inline centralizados ---
-  const s = {
-    page: { minHeight:"100vh", background:"#f3f4f6", fontFamily:"system-ui,-apple-system,Segoe UI,Roboto" },
-    headerWrap:{ background:"#fff", borderBottom:"1px solid #e5e7eb" },
-    header:{ maxWidth:960, margin:"0 auto", padding:"12px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" },
-    brandLeft:{ display:"flex", alignItems:"center", gap:10 },
-    brandSquare:{ width:32, height:32, borderRadius:10, background:"#2563eb" },
-    brandTitle:{ fontSize:18, fontWeight:700 },
-    main:{ maxWidth:960, margin:"0 auto", padding:"24px 16px" },
-    card:{ maxWidth:420, margin:"40px auto", background:"#fff", border:"1px solid #e5e7eb", borderRadius:16, padding:20, boxShadow:"0 8px 24px rgba(0,0,0,.06)" },
-    title:{ textAlign:"center", fontSize:20, fontWeight:700, margin:"6px 0 2px" },
-    caption:{ textAlign:"center", fontSize:14, color:"#6b7280", margin:"0 0 12px" },
-    label:{ display:"block", fontSize:14, fontWeight:600, marginBottom:6 },
-    input:{ width:"100%", padding:"10px 12px", border:"1px solid #d1d5db", borderRadius:10, outline:"none", marginBottom:10 },
-    error:{ color:"#e11d48", fontSize:13, marginBottom:10 },
-    btn:{ width:"100%", padding:"12px 16px", borderRadius:12, border:"1px solid #2563eb", background:"#2563eb", color:"#fff", fontWeight:700, cursor:"pointer" },
-    footer:{ padding:24, textAlign:"center", color:"#6b7280", fontSize:12 },
-    adminLink:{ display:'inline-block',marginTop:12,fontSize:12,textDecoration:'underline', color:'#2563eb' }
-  }
-
-  return (
-    <div style={s.page}>
-      <header style={s.headerWrap}>
-        <div style={s.header}>
-          <div style={s.brandLeft}>
-            <div style={s.brandSquare} />
-            <div style={s.brandTitle}>Elección de Diáconos</div>
-          </div>
-
-          {/* 👇 Usa Link en lugar de <a href> para evitar 404 del servidor */}
-          <Link to="/admin/login" style={s.adminLink}>Soy administrador</Link>
-        </div>
-      </header>
-
-      <main style={s.main}>
-        <div style={s.card}>
-          <div style={{textAlign:"center", marginBottom:8}}>
-            <div style={{fontSize:24}}>🗳️</div>
-            <h2 style={s.title}>BIENVENIDO 2025</h2>
-            <p style={s.caption}>Ingresa tu cédula para continuar con la votación.</p>
-          </div>
-
-          <label style={s.label}>Cédula</label>
-          <input
-            style={s.input}
-            value={cedula}
-            onChange={e => setCedula(e.target.value)}
-            placeholder="8-123-456"
-          />
-
-          {errorMsg && <div style={s.error}>{errorMsg}</div>}
-
-          <button style={s.btn} onClick={handleContinue}>Continuar</button>
-        </div>
-      </main>
-
-      <footer style={s.footer}>IGLESIA MINISTERIO JEZREEL · MÓDULO DE VOTACIONES</footer>
-    </div>
-  )
+  return <main className="center-page"><section className="card voter-card">
+    <p className="eyebrow">Iglesia Ministerio Jezreel</p><h1>Votaciones</h1>
+    {waiting ? <><div className="waiting-dot"/><h2>Esperando apertura</h2><p>Asistencia registrada.</p><p>{enabled ? 'Habilitado para votar.' : 'Habilitación electoral pendiente.'}</p><p role="status">{msg}</p><button onClick={() => checkBallot(sessionStorage.getItem('voting_token'))}>Revisar ahora</button></> :
+      <form onSubmit={submit}><p>Ingresa tu cédula. Dentro del área autorizada, tu asistencia se registra automáticamente. La habilitación electoral se comprueba por separado.</p>
+        <label>Cédula<input value={cedula} onChange={e => setCedula(e.target.value)} autoComplete="off" required/></label>
+        {msg && <p className="error" role="alert">{msg}</p>}<button disabled={busy}>{busy ? 'Verificando ubicación…' : 'Ingresar'}</button>
+        <p className="privacy">La ubicación se revisa al entrar y al enviar. Las selecciones se guardan como conteos sin vínculo con tu identidad.</p></form>}
+  </section></main>
 }
