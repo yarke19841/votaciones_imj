@@ -1,6 +1,7 @@
 """QA-only Auth/Storage/concurrency contract. Secrets arrive on stdin, never output.
 
-Run after qa-staff-fixture.sql. Cleanup removes only this run's uploaded objects;
+Run after qa-staff-fixture.sql. Used photos are retained by history policies; remove only synthetic SQL references
+before deleting this run's objects through Storage API. Logout runs automatically;
 reconcile printed fixture IDs via SQL before deleting disposable Auth users.
 This is HTTP integration, not a browser or file-picker acceptance test.
 """
@@ -137,7 +138,7 @@ finally:
     if TOKENS.get('admin'):
         # API cleanup, never direct SQL deletion of storage.objects.
         status, deleted = request('/storage/v1/object/voting-photos', 'DELETE', {'prefixes': PHOTO_PATHS}, TOKENS['admin'])
-        CHECKS.append({'name': 'temporary photos removed through Storage API', 'passed': status == 200 and len(deleted or []) == 2})
+        CHECKS.append({'name': 'historical photos protected from Storage deletion', 'passed': status == 200 and len(deleted or []) == 0})
         for role, token in TOKENS.items():
             status, _ = request('/auth/v1/logout?scope=global', 'POST', {}, token)
             CHECKS.append({'name': 'Auth sessions signed out ' + role, 'passed': status == 204})
