@@ -1,6 +1,6 @@
 # Votaciones Ministerio Jezreel — estado verificable
 
-Actualizado 13 de octubre de 2026, Panamá. NO COMPLETO / NO PRODUCCIÓN.
+Actualizado 14 de octubre de 2026, Panamá. NO COMPLETO / NO PRODUCCIÓN.
 
 ## Fuentes
 
@@ -31,7 +31,7 @@ Panel real para admin/líder/pastor según profiles activo, territorios activos 
 
 ## Pendientes y límites
 
-1. Correctiva e integración SQL QA confirmadas; HTTP votante y concurrencia de envío confirmadas. Falta login Auth de personal, Storage HTTP con carga real y concurrencia apertura/cierre. No sustituir esas pruebas por SQL con claims.
+1. Correctiva e integración SQL QA confirmadas; HTTP votante y concurrencia de envío confirmadas. El 14 de octubre pasaron las 31 comprobaciones de `tests/qa-staff-http.py`: login Auth real admin/leader, perfil propio por RLS, contraseña incorrecta rechazada, permisos de snapshots por rol, carga denegada al líder, subida/descarga idéntica de PNG por admin, fotos anónimas ocultas antes/después y visibles solo para ronda activa, dos aperturas simultáneas aceptan exactamente una y dos cierres aceptan exactamente uno, eliminación por Storage API y logout global. No equivale a prueba de navegador ni valida todavía login HTTP de pastor y ámbitos con cuentas de prueba. Se repitieron 5 pruebas JS, 59 SQL locales y build sin errores.
 2. Verificación soportada de navegador responsive/fotos/GPS. Sites control-browser no está disponible; no instalar/improvisar navegador para saltar su instrucción. Revisar acceso actual en próximo turno.
 3. Total de miembros único exacto sigue por definir en SPEC. Bethel no tiene cédula nativa en people; registrar identidad con habilitación false antes de permitir ingreso de personas no habilitadas. No deducir total de miembros de habilitados ni sustituir por registros territoriales duplicados. UI muestra universo pendiente, no porcentaje ficticio.
 4. Fotos/catálogo/cupos usados en ronda iniciada quedan protegidos; cambio histórico de catálogo de práctica necesita snapshots versionados para poder cambiar foto después de uso sin alterar historia. No afirmar aceptación completa de edición histórica.
@@ -41,5 +41,7 @@ Panel real para admin/líder/pastor según profiles activo, territorios activos 
 Orden pendiente:completar pruebas QA restantes y faltantes → producción solo tras aceptación completa. No dar por terminada esta tarea.
 
 ## Seguimiento
+
+Ejecución del 14 de octubre: 31 comprobaciones HTTP aprobadas en QA. La elección ficticia `662a785b-51cf-4357-80da-b0b366792504` quedó pendiente de borrado: dos solicitudes de limpieza devolvieron `Invalid or expired requestState`; no inferir borrado exitoso. Última lectura confirma cero fotos temporales y cero sesiones de las cuentas de prueba. Sus perfiles admin/leader quedaron desactivados mediante UPDATE confirmado. Las rondas ficticias quedaron una cerrada y otra borrador, ninguna abierta. Se retiró también el fixture anterior sin votos, conservando auditoría. El entorno de archivos tuvo un 503 temporal y volvió a responder. No hubo cambios en producción.
 
 Root ejecutó implementación y pruebas en este chat aunque el planificador «Terminar Votaciones» estuviera desactivado. El monitor debe distinguir programación, ejecución activa y avance probado. Hitos de esta sesión están enumerados arriba; no presentar la habilitación de una tarea como evidencia de trabajo. No hay validación de app real desplegada ni aceptación final.
