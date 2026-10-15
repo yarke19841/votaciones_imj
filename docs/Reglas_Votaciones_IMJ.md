@@ -295,3 +295,8 @@ Verificación de lectura: 5–6 de octubre de 2026. Estas observaciones no son r
 - Mantener las reglas de secreto, voto único y exclusión de aperturas en la capa que registra los datos, además de reflejarlas en la interfaz.
 - Documentar qué se implementó, qué se probó y qué sigue pendiente.
 - Confirmado el 8 de octubre: informar de inmediato cuando una decisión, aprobación o acceso faltante impida continuar. Explicar qué falta, qué parte bloquea y qué trabajo puede continuar sin ello. No detener tareas independientes por una configuración operativa pendiente ni dar a entender que se está trabajando cuando no hay ejecución activa. Distinguir avances realizados de próximos pasos; no prometer avances o avisos en segundo plano sin un mecanismo activo.
+
+## Aclaración del 14 de octubre de 2026 — panel y QA
+
+- El panel abre en Operación para abrir/cerrar la votación preparada. Ubicación y excepciones tiene pantalla propia en el menú; no mostrar latitud, longitud o radio en la entrada de operación.
+- La prueba de aceptación se entrega con elección, cupos, candidatos, fotos, padrón y rondas preparados. La usuaria opera la votación; no debe configurar de nuevo la prueba para poder votar.
