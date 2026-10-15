@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, isQaEnvironment } from './supabase'
 
 export async function getAdminSession() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -9,7 +9,9 @@ export async function getAdminSession() {
 }
 
 export async function loginAdmin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  const loginEmail = isQaEnvironment && email.trim().toLowerCase() === 'sa'
+    ? 'qa-voting-20261014-admin@example.invalid' : email
+  const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password })
   if (error) return { ok: false, msg: 'Correo o contraseña incorrectos.' }
   const session = await getAdminSession()
   if (!session) {
