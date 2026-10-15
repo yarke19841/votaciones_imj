@@ -300,3 +300,13 @@ Verificación de lectura: 5–6 de octubre de 2026. Estas observaciones no son r
 
 - El panel abre en Operación para abrir/cerrar la votación preparada. Ubicación y excepciones tiene pantalla propia en el menú; no mostrar latitud, longitud o radio en la entrada de operación.
 - La prueba de aceptación se entrega con elección, cupos, candidatos, fotos, padrón y rondas preparados. La usuaria opera la votación; no debe configurar de nuevo la prueba para poder votar.
+
+## Personal de registro — confirmado el 14 de octubre de 2026
+
+- Rol electoral Personal de registro: Administración asigna las cuentas y el día autorizado. Solo se activa en esa fecha, según la hora de Panamá; no hereda permisos administrativos.
+- Al crear una persona nueva, la misma operación la habilita para la elección anual y registra su asistencia de la ronda activa. Es la excepción explícita a la regla general de que el alta no habilita.
+- Comprobar ubicación actual dentro del radio antes de crear/habilitar/registrar asistencia. Si falla el GPS, está fuera, falta configuración o no hay ingreso/votación activos, rechazar sin altas parciales. No sustituye las validaciones frescas de ubicación al consultar papeleta y enviar voto.
+- No duplicar cédulas normalizadas ni permitir que otra alta eluda una revocación. Las personas existentes requieren revisión administrativa.
+- Personal de registro y Administración tienen un listado de personas creadas en el día, indicando persona, creador, fecha/hora Panamá, asistencia y habilitación. Administración puede consultar fechas anteriores.
+- Solo Administración puede revocar habilitaciones, con motivo y auditoría. Conservar la persona y asistencia; bloquear votos posteriores, sin borrar votos válidos ya emitidos ni revelar selecciones.
+- Demo y app final deben compartir diseño, pantallas, menú, reglas y funcionamiento. QA verifica contra lo acordado; datos ficticios y entorno son las diferencias. Entregar la demo preparada para probar Administración, Votante y Personal de registro.
