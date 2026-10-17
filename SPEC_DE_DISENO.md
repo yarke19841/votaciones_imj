@@ -69,3 +69,26 @@ Preferir componentes y estilos centralizados para Button, Input, Select, Card, S
 Este archivo centraliza las referencias visuales del módulo de votaciones. **Estado actual: pendiente de incorporar las imágenes originales aprobadas y de validar cada pantalla.** La creación del archivo no implica aprobación de nuevos diseños.
 
 Una vez incorporadas las imágenes originales, registrar para cada pantalla su nombre, enlace al frame/nodo específico, fecha de aprobación y correspondencia con el componente del repositorio. Los agentes deben comparar contra esas referencias antes de modificar la interfaz. No inventar ni recrear imágenes en sustitución de las aprobadas.
+
+## 10. Inventario de imágenes de referencia recibidas (16-10-2026)
+
+Las siguientes capturas fueron proporcionadas por la responsable del proyecto como referencias visuales. **No se deben recrear ni sustituir por imágenes generadas.** La carga de sus archivos originales en Figma permanece pendiente de confirmación técnica.
+
+| Referencia | Imagen recibida | Contenido | Aplicación |
+| --- | --- | --- | --- |
+| IMJ-MOV-01 | IMG_2725.jpeg | Ingreso por cédula, espera, selección de 2 mujeres y 3 hombres, confirmación de voto | Votación móvil IMJ |
+| IMJ-ADM-01 | 312E94F7-4EEC-430F-996C-64DC35BDE0B3(1).jpeg | Candidatos oficiales, resultados, catálogo de simulacro | Administración IMJ |
+| IMJ-ADM-01 (duplicada) | 312E94F7-4EEC-430F-996C-64DC35BDE0B3.jpeg | Misma composición administrativa | No generar diseño adicional |
+| IMJ-ADM-01 (duplicada) | 312E94F7-4EEC-430F-996C-64DC35BDE0B3(2).jpeg | Misma composición administrativa | No generar diseño adicional |
+| IMJ-ADM-01 (captura de visor) | IMG_2729.jpeg | Misma composición en captura con márgenes negros | No utilizar márgenes del visor como diseño |
+| BETHEL-ADM-01 | IMG_2730.jpeg | Panel de votaciones y habilitados de Bethel | Referencia exclusiva Bethel |
+
+### 10.1 Separación de identidades
+- **IMJ:** azul marino, blanco y azul claro, con paloma institucional y estilo mostrado en las capturas de IMJ.
+- **Bethel:** identidad propia de la captura de Bethel; no trasplantar logotipo, tipografía o paleta de Bethel a IMJ.
+- Los nombres, cifras, fotografías y fechas que aparecen en las propuestas son datos ilustrativos, no datos de producción.
+
+### 10.2 Criterio para agentes
+Comparar cada nueva pantalla contra la imagen correspondiente a su iglesia y módulo. Mantener la navegación lateral, jerarquía, espaciados, tarjetas y controles de la referencia, salvo modificación expresamente aprobada. La referencia móvil y la de escritorio responden a contextos de uso diferentes; no trasladar un layout de escritorio a móvil sin adaptación.
+
+**Figma:** [Votaciones IMJ — Referencias visuales aprobadas](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5). Hasta que se complete la carga y se registren IDs de frames, este enlace corresponde al archivo contenedor y no constituye evidencia de que las capturas ya estén colocadas en su lienzo.
