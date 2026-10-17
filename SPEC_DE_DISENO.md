@@ -61,3 +61,11 @@ Preferir componentes y estilos centralizados para Button, Input, Select, Card, S
 > Utiliza las pantallas existentes y aprobadas como fuente de verdad del diseño. No crees estilos, estructuras, componentes visuales ni distribuciones diferentes cuando exista una referencia equivalente. Conserva la identidad visual del sistema y modifica únicamente la funcionalidad solicitada. Solicita aprobación antes de introducir nuevos patrones visuales.
 
 **Principio rector:** Una sola identidad visual, múltiples módulos, experiencia consistente.
+
+## 9. Referencias visuales en Figma
+
+**Archivo de referencia:** [Votaciones IMJ — Referencias visuales aprobadas](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5)
+
+Este archivo centraliza las referencias visuales del módulo de votaciones. **Estado actual: pendiente de incorporar las imágenes originales aprobadas y de validar cada pantalla.** La creación del archivo no implica aprobación de nuevos diseños.
+
+Una vez incorporadas las imágenes originales, registrar para cada pantalla su nombre, enlace al frame/nodo específico, fecha de aprobación y correspondencia con el componente del repositorio. Los agentes deben comparar contra esas referencias antes de modificar la interfaz. No inventar ni recrear imágenes en sustitución de las aprobadas.
