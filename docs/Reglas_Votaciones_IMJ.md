@@ -1,10 +1,13 @@
 # SPEC — Reglas de Votaciones IMJ
 
-Actualizado: 12 de octubre de 2026 (Panamá).
+Actualizado: 17 de octubre de 2026 (Panamá).
 
 Este documento reúne todas las reglas confirmadas en esta conversación y las reglas recuperadas del código. Es la referencia para los agentes que trabajen en Votaciones. Documentar un requisito no significa que ya esté implementado o probado.
 
 ## 1. Objetivo y base compartida
+
+- Confirmado el 17 de octubre: Yarquelis autoriza programar y desplegar la versión conectada en producción y solicita una DEMO para probarla, con simulacro y votación ficticia claramente identificados. Mantener la elección real y sus datos separados de esas pruebas. La DEMO técnica preparada usa el año 2098 para no ocupar el año electoral real 2027; esto es una decisión de implementación de la prueba, no una nueva elección real.
+- Confirmado el 17 de octubre: conservar en Git todos los SPEC vigentes, el logo oficial y las referencias visuales recibidas, con un índice que permita recuperarlos junto al código. Publicar código o documentar requisitos no equivale a aprobar una elección real sin sus verificaciones.
 
 - Votaciones debe ser un módulo administrable para preparar y realizar elecciones cada año.
 - Debe utilizar la misma base de datos de Bethel_IMJ.
@@ -14,6 +17,18 @@ Este documento reúne todas las reglas confirmadas en esta conversación y las r
 - Preparar y verificar los cambios en preproducción antes de proponer su aplicación en producción.
 
 ## 1.1 Identidad visual y experiencias — confirmado
+
+- Logo oficial confirmado por Yarquelis el 17 de octubre: usar el archivo adjunto `Iglesia Ministerios Jezreel.png` (`libfile_f76cf9e04cb481918eb5cbc991467b19`), con el emblema circular, la paloma y el globo. Este archivo reemplaza los identificadores provisionales y la paloma de referencia de los mockups como fuente del logo.
+- Presentación aprobada: el mismo logo en **azul marino sobre fondo blanco**, alineado con la identidad visual del módulo. Conservar íntegros su forma, proporciones, círculos, paloma y globo; no redibujarlo ni sustituirlo por otra paloma o una letra. Aplicarlo de forma consistente en Administración y en las pantallas del votante, también en móvil.
+- Conservar el archivo original como referencia. La imagen siguiente muestra la fuente recibida en sus azules originales; la variante de uso debe ajustarse a azul marino. Documentar y verificar su aplicación antes de declarar que el sitio ya fue actualizado.
+- Ubicación confirmada el 17 de octubre: reemplazar la letra «J» provisional del encabezado del menú lateral por este logo, tanto en Administración como en la vista del votante. Mantenerlo visible también en la cabecera móvil al contraer el menú.
+- Ajuste de presentación confirmado el 17 de octubre: eliminar el recuadro blanco rectangular alrededor del logo. Conservar únicamente una base circular blanca, con el diseño en azul marino dentro, y el exterior del círculo integrado al fondo de la pantalla o del menú. Esta precisión aplica a ambas vistas y a móvil; no convertir todo el emblema a blanco.
+
+![Logo oficial aportado por Yarquelis: referencia original; usar la variante en azul marino sobre blanco.](referencias/Logo_Oficial_Jezreel.png)
+
+- Confirmado el 17 de octubre: todas las pantallas de Administración y del votante deben conservar los mismos colores y el mismo tipo de letra de las referencias visuales aprobadas. No cambiar la identidad entre pantallas, versiones ni tamaños de dispositivo. Aplicar tokens compartidos de color, familia tipográfica, pesos y jerarquía de títulos, textos y controles; la adaptación responsive conserva esa identidad.
+- Referencia visual aportada el 17 de octubre: `312E94F7-4EEC-430F-996C-64DC35BDE0B3(3).jpeg` (archivo `libfile_d9184739b98c8191b100eaf3f0f8b4b4`): Candidatos oficiales 2027, Resultados Oficial 2027 y Catálogo del simulacro 2026. Deben guiar los colores y la tipografía del prototipo y de la implementación.
+- Ajuste técnico del prototipo: colores aproximados muestreados de esa imagen: azul marino `#052852`, celeste informativo `#E4F0FC`, selección del menú `#3A567E` y fondo blanco. Estos valores son una aproximación técnica de la captura, no colores fuente verificados del diseño original. El nombre exacto de la fuente no puede determinarse solo por el JPEG; se usa una familia compartida Arial/Helvetica como aproximación hasta contar con la fuente original. No declarar una coincidencia visual exacta sin comparación.
 
 - Confirmado el 7 de octubre: todas las pantallas deben ser responsive, adaptándose a diferentes tamaños de celular, tablet y PC, en orientación vertical y horizontal. Aplicar a votantes y Administración: contenido y controles legibles, menú adaptable, formularios y tarjetas que se reorganicen sin cortar acciones ni provocar desplazamiento horizontal de toda la página. Las tablas extensas pueden usar desplazamiento dentro de su propio contenedor accesible. Verificar anchos representativos, incluidos celulares pequeños.
 
@@ -295,18 +310,3 @@ Verificación de lectura: 5–6 de octubre de 2026. Estas observaciones no son r
 - Mantener las reglas de secreto, voto único y exclusión de aperturas en la capa que registra los datos, además de reflejarlas en la interfaz.
 - Documentar qué se implementó, qué se probó y qué sigue pendiente.
 - Confirmado el 8 de octubre: informar de inmediato cuando una decisión, aprobación o acceso faltante impida continuar. Explicar qué falta, qué parte bloquea y qué trabajo puede continuar sin ello. No detener tareas independientes por una configuración operativa pendiente ni dar a entender que se está trabajando cuando no hay ejecución activa. Distinguir avances realizados de próximos pasos; no prometer avances o avisos en segundo plano sin un mecanismo activo.
-
-## Aclaración del 14 de octubre de 2026 — panel y QA
-
-- El panel abre en Operación para abrir/cerrar la votación preparada. Ubicación y excepciones tiene pantalla propia en el menú; no mostrar latitud, longitud o radio en la entrada de operación.
-- La prueba de aceptación se entrega con elección, cupos, candidatos, fotos, padrón y rondas preparados. La usuaria opera la votación; no debe configurar de nuevo la prueba para poder votar.
-
-## Personal de registro — confirmado el 14 de octubre de 2026
-
-- Rol electoral Personal de registro: Administración asigna las cuentas y el día autorizado. Solo se activa en esa fecha, según la hora de Panamá; no hereda permisos administrativos.
-- Al crear una persona nueva, la misma operación la habilita para la elección anual y registra su asistencia de la ronda activa. Es la excepción explícita a la regla general de que el alta no habilita.
-- Comprobar ubicación actual dentro del radio antes de crear/habilitar/registrar asistencia. Si falla el GPS, está fuera, falta configuración o no hay ingreso/votación activos, rechazar sin altas parciales. No sustituye las validaciones frescas de ubicación al consultar papeleta y enviar voto.
-- No duplicar cédulas normalizadas ni permitir que otra alta eluda una revocación. Las personas existentes requieren revisión administrativa.
-- Personal de registro y Administración tienen un listado de personas creadas en el día, indicando persona, creador, fecha/hora Panamá, asistencia y habilitación. Administración puede consultar fechas anteriores.
-- Solo Administración puede revocar habilitaciones, con motivo y auditoría. Conservar la persona y asistencia; bloquear votos posteriores, sin borrar votos válidos ya emitidos ni revelar selecciones.
-- Demo y app final deben compartir diseño, pantallas, menú, reglas y funcionamiento. QA verifica contra lo acordado; datos ficticios y entorno son las diferencias. Entregar la demo preparada para probar Administración, Votante y Personal de registro.

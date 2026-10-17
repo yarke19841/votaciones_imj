@@ -1,4 +1,5 @@
 import '../styles/voter.css'
+import OfficialLogo from './OfficialLogo'
 
 export function VoteIcon({ name = 'check', ...props }) {
   return <svg viewBox="0 0 64 64" fill="none" aria-hidden="true" {...props}>
@@ -6,18 +7,10 @@ export function VoteIcon({ name = 'check', ...props }) {
   </svg>
 }
 
-function Dove() {
-  return <svg className="voting-dove" viewBox="0 0 120 100" aria-hidden="true">
-    <path fill="white" d="M61 65C39 67 24 51 20 24c12 11 21 18 32 23C41 34 36 23 37 10c16 13 23 28 33 35 7-12 16-11 20-5l11 4-12 5c-2 12-11 17-23 21l-5 17-9-8-15 3 12-13z"/>
-    <path d="m89 43 17-17" stroke="#86c2ea" strokeWidth="2"/>
-    <path fill="#86c2ea" d="M99 35c-1-9 2-16 7-18 1 8-1 15-7 18m3-2c4-8 10-9 16-8-3 6-8 9-16 8m-7 7c5-2 10-1 14 3-6 2-11 1-14-3"/>
-  </svg>
-}
-
 export default function VotingLayout({ children, year, compact = false, wide = false }) {
   return <main className={`voting-stage${wide ? ' voting-stage-wide' : ''}`}>
     <section className={`voting-screen${compact ? ' voting-screen-compact' : ''}`}>
-      <header className="voting-brand"><Dove/><div className="voting-brand-name">Ministerio Jezreel</div><p>Votaciones{year ? ` ${year}` : ''}</p>
+      <header className="voting-brand"><OfficialLogo className="voting-official-logo"/><div className="voting-brand-name">Ministerio Jezreel</div><p>Votaciones{year ? ` ${year}` : ''}</p>
         <svg className="voting-header-wave" viewBox="0 0 600 55" preserveAspectRatio="none" aria-hidden="true"><path d="M0 4Q290 88 600 0V55H0Z" fill="#256394"/><path d="M0 14Q290 96 600 8V55H0Z" fill="white"/></svg>
       </header>
       <div className="voting-content">{children}</div>
