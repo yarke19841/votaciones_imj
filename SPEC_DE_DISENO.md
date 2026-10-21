@@ -87,6 +87,10 @@ Preferir componentes y estilos centralizados para Button, Input, Select, Card, S
 
 **Principio rector:** Una sola identidad visual, múltiples módulos, experiencia consistente.
 
+## Crédito de desarrollo aprobado
+
+Decisión confirmada por la responsable del proyecto: mostrar **Desarrollado por Zykodio** al final de las pantallas del módulo, tanto para votantes como para administración. El crédito debe ser discreto, legible, responsive y no cubrir controles ni sustituir la identidad de Ministerio Jezreel. No presentar Zykodio como marca registrada ni añadir símbolos de registro. El registro legal permanece pendiente; el crédito no acredita titularidad exclusiva del nombre.
+
 ## 9. Referencias visuales en Figma
 
 **Archivo de referencia:** [Votaciones IMJ — Referencias visuales aprobadas](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5)

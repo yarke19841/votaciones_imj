@@ -117,6 +117,18 @@ th { background: #f0f3f7; color: #173556; }
   .admin-menu button:hover { background: #294b76; }
   .admin-menu button:focus-visible { outline-color: white; outline-offset: -3px; }
 }
+.developer-credit {
+  padding: 16px;
+  color: var(--imj-navy, #052852);
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 1000px) {
+  .developer-credit-admin { margin-left: 220px; }
+}
 @media (max-width: 999px) {
   .admin-menu { gap: 6px; }
   .admin-menu button { padding: 10px 12px; font-size: 14px; }
