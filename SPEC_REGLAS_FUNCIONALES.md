@@ -1,14 +1,18 @@
 # SPEC DE REGLAS FUNCIONALES — Votaciones IMJ
 
 **Identificador:** SPEC-FUNC-001  
-**Versión:** 1.0 (consolidación inicial)  
+**Versión:** 1.1 (conciliación con reglas confirmadas al 17-10-2026)
+
 **Estado:** Reglas conocidas y pendientes de validación identificadas  
 **Proyecto:** votaciones_imj  
 **Relacionado:** [SPEC de diseño](./SPEC_DE_DISENO.md)
+**Índice y precedencia:** [Especificaciones del proyecto](./docs/SPECS.md)
 
 ## 1. Propósito y alcance
 
 Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezreel, tanto en simulacros como en elecciones oficiales. El diseño visual se rige por `SPEC_DE_DISENO.md`; este documento rige procesos, datos, autorizaciones y controles. No sustituye las reglas de seguridad, RLS ni los requisitos legales que deban establecerse.
+
+Las instrucciones posteriores de Yarquelis y las [reglas consolidadas actuales](./docs/Reglas_Votaciones_IMJ.md) prevalecen ante discrepancias. Este documento especifica requisitos; su inclusión no acredita implementación ni pruebas. Para evidencia técnica consultar [REAL_ACCEPTANCE.md](./docs/REAL_ACCEPTANCE.md).
 
 ## 2. Entidades y conceptos
 
@@ -21,6 +25,8 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 - **Voto:** selección enviada y registrada dentro de la elección correspondiente.
 - **Ronda:** fase de votación, incluidas eventuales rondas de desempate.
 
+La identidad electoral única por cédula puede vincular varios registros territoriales de Bethel sin fusionarlos. Una elección anual contiene simulacro, oficial y sus rondas; conservar separados los resultados por año, tipo y ronda.
+
 ## 3. Padrón e importación
 
 **RF-001.** El padrón debe permitir importar miembros con **nombre completo y cédula**. El operador selecciona un territorio antes de cargar el archivo; todas las filas válidas de esa carga se asocian a dicho territorio.
@@ -31,21 +37,25 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 
 **RF-004.** La importación no debe crear duplicados involuntarios dentro del mismo ámbito de identidad. Las reglas de identidad y coexistencia entre territorios deben respetar el modelo compartido con el sistema de miembros.
 
+**Estado de RF-001–RF-004:** requisitos de importación y exportación del padrón conservados; no se consideran implementados por aparecer en este SPEC. Verificar el flujo y su evidencia antes de declarar disponible una carga CSV o exportación de habilitados/no habilitados.
+
 **RF-005.** La pantalla de asistencia rápida **no crea miembros**. La creación/importación se realiza por flujos administrativos separados.
 
 ## 4. Habilitación electoral
 
-**RF-006.** Los líderes y pastores autorizados habilitan a los miembros que cumplen los requisitos electorales; la habilitación no equivale a registrar asistencia.
+**RF-006.** Administración puede habilitar desde los listados; el líder habilita desde su propio listado y el pastor territorial dentro de su territorio. La habilitación no equivale a registrar asistencia ni concede otras facultades administrativas por el nombre del rol.
 
 **RF-007.** El padrón de habilitados es compartido entre simulacro y votación oficial **para el mismo año electoral**. No se debe obligar a una segunda habilitación por pasar del simulacro a la elección oficial.
 
 **RF-008.** La habilitación y sus modificaciones deben respetar los permisos por rol y alcance territorial.
 
-**RF-009.** El estado `is_active` del registro de miembro no debe interpretarse automáticamente como habilitación electoral, salvo que el esquema y las reglas de negocio lo definan expresamente. Distinguir ambos conceptos en API, interfaz e indicadores.
+**RF-009.** El estado `is_active` del registro de miembro y su presencia en Bethel no conceden habilitación electoral. Se requiere una autorización explícita para la elección anual. Distinguir ambos conceptos en API, interfaz e indicadores.
 
 ## 5. Llegada y asistencia electoral
 
 **RF-010.** Al llegar a la iglesia, el votante ingresa su cédula. El sistema localiza su registro y registra su llegada/asistencia electoral.
+
+La asistencia válida se registra automáticamente antes de la apertura; la ayuda de otra persona es opcional. No exigir aprobación obligatoria de un asistente, confirmación administrativa del teléfono ni segunda activación del moderador. Registrar llegada no habilita electoralmente ni emite votos.
 
 **RF-011.** El acceso al voto requiere **ambas condiciones**: habilitación electoral válida y asistencia registrada para la elección/jornada aplicable.
 
@@ -57,7 +67,7 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 
 **RF-015.** La asistencia rápida permite **buscar únicamente por cédula** y marcar asistencia a miembros existentes. No muestra ni ejecuta creación rápida de miembros. Mantiene el diseño de referencia de `AdminCheckIn.jsx`, incluido el selector de elección, fecha, jornada, indicadores y la acción de activar miembro existente, sujeta a permisos.
 
-**RF-016.** Los indicadores deben mostrar el padrón de referencia, asistentes únicos y porcentaje de asistencia. Fórmula: `asistentes únicos elegibles / total del padrón de referencia × 100`. La definición exacta del denominador (habilitados electorales frente a miembros activos) debe resolverse antes de publicar indicadores oficiales.
+**RF-016.** Los indicadores deben mostrar total de miembros, miembros presentes únicos y porcentaje de asistencia. Fórmula confirmada: `presentes / total de miembros × 100`; no usar habilitados electorales ni votos como denominador. Ejemplo: 150 presentes de 300 miembros = 50 %. Deduplicar por identidad sin fusionar registros territoriales. La cobertura y completitud del universo de miembros requieren validación operativa; si faltan identidades no presentar un total exacto como verificado. Mantener separados presentes, habilitados y participantes. El indicador no impone un quórum ni apertura automática.
 
 ## 6. Elecciones, estados y apertura
 
@@ -75,7 +85,7 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 
 **RF-022.** La administración permite gestionar candidatos oficiales con **nombre, género, fotografía y estado**, incluida edición y sustitución de foto.
 
-**RF-023.** El catálogo de candidatos/fotografías del simulacro se conserva como referencia reutilizable entre años, sin mezclar votos ni resultados de años diferentes.
+**RF-023.** Cada simulacro anual reutiliza el catálogo y fotografías del simulacro **2026**; no utiliza los candidatos oficiales de 2026 ni crea un catálogo de práctica independiente cada año. Conservar separados votos y resultados anuales. Los candidatos oficiales del año permanecen ocultos al votante hasta abrir la oficial; abrir el simulacro no los revela.
 
 **RF-024.** La configuración electoral define cupos por categoría. La referencia visual aprobada muestra **2 mujeres y 3 hombres**; esos valores son **ejemplo de configuración**, no constantes inmutables sin confirmación.
 
@@ -88,6 +98,8 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 **RF-027.** Solo puede emitir un voto un miembro habilitado electoralmente, con asistencia válida, cuando la elección correspondiente está abierta.
 
 **RF-028.** La selección se valida en servidor contra candidatos elegibles, cupos, año, tipo, ronda y estado abierto.
+
+Exigir exactamente los cupos configurados por género: rechazar menos, más, duplicados, candidatos inactivos o de otra ronda. Los valores del ejemplo 2 mujeres/3 hombres son configurables desde Administración.
 
 **RF-029.** Un votante no puede votar dos veces en la misma elección/ronda. La prevención debe ser transaccional y respaldada por restricciones de datos, no únicamente por el estado de la interfaz.
 
@@ -103,7 +115,7 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 
 **RF-034.** Si existe empate que afecta el último cupo, se identifica el puesto pendiente y se habilita un flujo de preparación de desempate, sin adjudicar arbitrariamente el cupo.
 
-**RF-035.** La regla previamente definida indica que **los mismos votantes que votaron** deben participar en la ronda de desempate; se debe restringir la elegibilidad de esa ronda al conjunto de votantes de la ronda correspondiente, según la regla definitiva del proceso.
+**RF-035.** El padrón del desempate contiene exactamente las mismas identidades que emitieron voto válido en su ronda de origen, independientemente de sus selecciones. No incluir a quien solo estaba habilitado o presente. La cantidad que vuelva a votar puede ser menor, sin completar votos automáticamente. La ronda incluye únicamente candidatos empatados en el límite y puestos pendientes; conservar los puestos ya ganados y el historial. Administración configura antes de abrir si requiere nueva asistencia o reutiliza asistencia válida de origen.
 
 **RF-036.** La exportación de resultados debe incluir agregados por año/tipo/ronda y **no revelar selecciones individuales ni vincular votante con candidato**.
 
@@ -118,6 +130,10 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 **RF-040.** Proteger el secreto del voto. La información de asistencia y de participación puede usarse para verificar que alguien votó, pero no para reconstruir su selección.
 
 **RF-041.** La solución se integra con el entorno de datos compartidos de Bethel_IMJ según los límites de acceso de cada iglesia. No se debe asumir acceso irrestricto entre iglesias.
+
+**RF-042.** Administración configura ubicación y radio desde «Ubicación y excepciones». Solo Administración aprueba excepciones con ámbito y vigencia; líderes y pastores no reciben ese permiso. Comprobar ubicación actual al acceder a la papeleta y al enviar: la asistencia histórica no permite votar fuera del radio. Una excepción no habilita electoralmente ni registra presencia física ficticia. Si faltan punto/radio, indicar configuración pendiente; no inventar valores. Fuera del radio mostrar «Está fuera del límite permitido para votar»; GPS denegado/no verificable requiere su mensaje específico. Un rechazo no registra votos ni participación.
+
+**RF-043.** Mostrar a personal autorizado pendientes de votar por identidad, año, tipo y ronda, distinguiendo llegada registrada. Retirar de pendientes solo tras un voto válido; un voto de simulacro no marca oficial ni desempate como participado. No revelar selecciones.
 
 ## 11. Criterios mínimos de aceptación
 
@@ -137,14 +153,15 @@ Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezr
 
 ## 12. Pendientes de validación antes de implementar como definitivos
 
-1. Definición exacta del **padrón denominador** de participación y de asistentes únicos en el indicador.
-2. Política de **activación de miembros** desde Asistencia Rápida y si activar miembro puede o no habilitar electoralmente.
-3. Alcance preciso de **asistencia por simulacro/oficial**, fecha y jornada; si se reutiliza entre rondas.
-4. Si en una ronda de desempate votan **todos los votantes de la ronda anterior** o únicamente quienes votaron por candidaturas empatadas; la regla conocida exige mantener el mismo universo, pero falta detallar el criterio exacto.
-5. Reglas de voto incompleto, abstención, votos nulos, corrección de voto y expiración de sesión.
-6. Configuración definitiva de cupos por género/categoría y condiciones de adjudicación.
-7. Matriz exacta de roles, permisos, alcance territorial y administración multiiglesia.
-8. Estados y nombres exactos de tablas, restricciones y políticas RLS vigentes en el repositorio.
+1. Validación operativa de cobertura/completitud del total de miembros e identidades sin cédula. El denominador ya está confirmado: **total de miembros**, no habilitados.
+2. Facultades de activación del registro de miembro en flujos heredados; activación y habilitación electoral siguen siendo estados separados.
+3. Validación de la política administrativa de asistencia de cada desempate. El padrón ya está confirmado: todos los participantes válidos de la ronda de origen, sin filtrar sus selecciones.
+4. Validar punto exacto, radio y vigencia operativa de excepciones; precisar asistencia de autorizados fuera del área sin crear presencia ficticia.
+5. Reglas no confirmadas sobre abstención, votos nulos, corrección de voto y duración configurable de sesión. La selección incompleta ya se rechaza por cupos exactos.
+6. Requisitos de candidatura y aprobación de postulaciones. Los cupos son configurables por género; no fijar permanentemente el ejemplo visual.
+7. Permisos adicionales a los ya confirmados por rol/territorio, acciones editables después de iniciar/cerrar y cualquier administración multiiglesia futura. No ampliar acceso por inferencia.
+8. Verificar implementación y pruebas de importación/exportación del padrón; conservar RF-001–RF-004 como requisitos sin anunciar disponibilidad sin evidencia.
+9. Tratamiento de registros históricos que relacionan identidad y selecciones sin destruir su historial; contrastar estado técnico con la evidencia fechada.
 
 > **Instrucción para agentes:** no convertir pendientes de validación en decisiones de producto implícitas. Confirmar con la responsable antes de modificar reglas electorales sensibles.
 
