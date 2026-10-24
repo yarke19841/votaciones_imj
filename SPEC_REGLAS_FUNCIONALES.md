@@ -37,7 +37,7 @@ La identidad electoral única por cédula puede vincular varios registros territ
 
 **RF-004.** La importación no debe crear duplicados involuntarios dentro del mismo ámbito de identidad. Las reglas de identidad y coexistencia entre territorios deben respetar el modelo compartido con el sistema de miembros.
 
-**Estado de RF-001–RF-004:** requisitos de importación y exportación del padrón conservados; no se consideran implementados por aparecer en este SPEC. Verificar el flujo y su evidencia antes de declarar disponible una carga CSV o exportación de habilitados/no habilitados.
+**Estado de RF-001–RF-004:** implementados mediante importación administrativa CSV con vista previa y confirmación, territorio obligatorio, nombre completo y cédula (1–500 filas), repetición idempotente y rechazo atómico ante errores/conflictos. El vínculo territorial electoral se guarda sin inventar células ni modificar membresías existentes. Una misma identidad puede conservar registros de persona separados entre territorios. La importación nunca cambia la habilitación anual. Los conflictos con nombres ya presentes requieren revisar/vincular la cédula, sin fusionar por nombre. Exportación de habilitados y no habilitados respeta el filtro y el ámbito del usuario; incluye nombre, listados, estado y últimos cuatro caracteres de cédula. Evidencia en `docs/ENTREGA_DEMO.md`; aceptación manual pendiente.
 
 **RF-005.** La pantalla de asistencia rápida **no crea miembros**. La creación/importación se realiza por flujos administrativos separados.
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { currentPosition, toggleCandidate, voterMessages } from '../lib/voterFlow'
+import { positionForVoting, toggleCandidate, voterMessages } from '../lib/voterFlow'
 import CandidatePhoto from '../components/CandidatePhoto'
 import VotingLayout, { VoteIcon } from '../components/VotingLayout'
 
@@ -20,7 +20,7 @@ export default function VoteBallot() {
     setBusy(true); setMsg('')
     try {
       let p
-      try { p = await currentPosition() } catch { setMsg('Activa la ubicación precisa para enviar.'); return }
+      p = await positionForVoting()
       const { data, error } = await supabase.rpc('voting_submit', { p_token: sessionStorage.getItem('voting_token'), p_candidate_ids: selected, p_latitude: p.lat, p_longitude: p.lng })
       if (error || !data) { setMsg('No se pudo confirmar el envío. Revisa tu conexión y vuelve a intentar.'); return }
       if (data.state !== 'accepted' && data.state !== 'already_voted') { setMsg(voterMessages[data.state] || 'No se pudo enviar. Revisa los cupos e intenta de nuevo.'); return }

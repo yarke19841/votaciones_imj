@@ -20,6 +20,8 @@ Los elementos provisionales de capturas antiguas no invalidan decisiones posteri
 
 ## Referencias y evidencia
 
+- [Entrega de la demo para pruebas](./ENTREGA_DEMO.md): importación territorial, exportación, excepciones GPS, verificación y recorrido.
+
 - [Logo oficial original de Ministerio Jezreel](./referencias/Logo_Oficial_Jezreel.png).
 - [Referencia administrativa aprobada](./referencias/Referencia_Administracion_IMJ.jpeg): candidatos oficiales, resultados y catálogo del simulacro. Los datos ilustrativos no son datos de producción.
 - [Estado verificable y aceptación](./REAL_ACCEPTANCE.md): evidencia fechada, pruebas realizadas y límites; no es una fuente de nuevas reglas de negocio.

@@ -17,6 +17,13 @@ export function currentPosition(geolocation = globalThis.navigator?.geolocation)
   })
 }
 
+// Null coordinates never grant access: the server checks an active, authorized
+// exception plus the attendance and eligibility rules independently.
+export async function positionForVoting(geolocation = globalThis.navigator?.geolocation) {
+  try { return await currentPosition(geolocation) }
+  catch { return { lat: null, lng: null } }
+}
+
 export const voterMessages = {
   not_found: 'No encontramos esa cédula. Consulta al líder para verificar su registro.',
   not_enabled: 'Asistencia registrada. Tu habilitación electoral sigue pendiente.',

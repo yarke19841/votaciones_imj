@@ -32,9 +32,9 @@ El catálogo de simulacro 2026 es administrable y se reutiliza entre años; su c
 - GPS es una observación del dispositivo, susceptible de manipulación, y cédula no prueba identidad. El flujo aprobado no exige asistente humano.
 - Participación y conteos agregados se guardan separados; no se ofrece anonimato criptográfico frente a operadores privilegiados de base/logs.
 - Si se pierde la respuesta de envío aceptado y el token ya caducó, reingresar por cédula comprueba la participación; el voto no se duplica.
-- La interfaz requiere GPS disponible incluso para una excepción geográfica. Permitir excepción ante GPS denegado necesita completar el manejo del cliente conservando la comprobación del servidor.
+- Resuelto en la entrega posterior documentada en `ENTREGA_DEMO.md`: el cliente permite comprobación de excepción por servidor cuando el GPS no entrega coordenadas; no omite asistencia/habilitación.
 - Hay registros de membresía sin cédula electoral vinculada: el indicador de total de miembros informa cobertura incompleta hasta completar identidades, sin sustituir el denominador por habilitados.
-- Importación CSV territorial: requisito documentado; no se presenta como implementado en el módulo real.
+- Importación CSV territorial y exportación del padrón: implementadas en la entrega posterior; ver `ENTREGA_DEMO.md` para alcance y evidencia.
 - La base compartida conserva avisos de seguridad heredados en tablas/funciones de otros módulos y en tablas electorales antiguas. No se alteraron indiscriminadamente sus permisos. El núcleo nuevo usa tablas separadas con RLS y RPC limitadas.
 
 Las pruebas HTTP/Storage/Auth y concurrencia registradas en `REAL_ACCEPTANCE.md` corresponden a QA; distinguirlas de la comprobación transaccional realizada en producción. La aceptación final de una elección real requiere recorrido manual de la usuaria.

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { currentPosition, voterMessages as messages } from '../lib/voterFlow'
+import { positionForVoting, voterMessages as messages } from '../lib/voterFlow'
 import VotingLayout, { VoteIcon } from '../components/VotingLayout'
 
 export default function VoteLogin() {
@@ -22,7 +22,7 @@ export default function VoteLogin() {
     if (checking.current || !token) return
     checking.current = true
     try {
-      const p = await currentPosition()
+      const p = await positionForVoting()
       const { data, error } = await supabase.rpc('voting_ballot', { p_token: token, p_latitude: p.lat, p_longitude: p.lng })
       if (error || !data) { setMsg('No se pudo consultar la votación. Vuelve a intentar.'); return }
       if (data.state === 'ready') { clearInterval(timer.current); nav('/vote', { state: { ballot: data } }); return }
@@ -36,7 +36,7 @@ export default function VoteLogin() {
   async function submit(event) {
     event.preventDefault(); setBusy(true); setMsg('')
     try {
-      const p = await currentPosition()
+      const p = await positionForVoting()
       const { data, error } = await supabase.rpc('voting_enter', { p_cedula: cedula, p_latitude: p.lat, p_longitude: p.lng })
       if (error || !data) { setMsg('No se pudo validar el ingreso. Vuelve a intentar.'); return }
       if (data.token) sessionStorage.setItem('voting_token', data.token)

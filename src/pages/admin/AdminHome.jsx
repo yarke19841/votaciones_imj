@@ -6,6 +6,8 @@ import RegistrationDesk from './RegistrationDesk'
 import CandidatePhoto from '../../components/CandidatePhoto'
 import { classifyResults } from '../../lib/adminResults'
 import OfficialLogo from '../../components/OfficialLogo'
+import RosterImport from './RosterImport'
+import { rosterCsv } from '../../lib/rosterCsv'
 
 const call = async (name, args = {}) => {
   const { data, error } = await supabase.rpc(name, args)
@@ -172,10 +174,17 @@ export default function AdminHome() {
     const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }))
     a.href = url; a.download = `resultados-${year}-${round.round_kind}-${round.round_number}.csv`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url)
   }
+  function exportRoster(enabled) {
+    const text = rosterCsv(visiblePeople.filter(p => p.enabled === enabled))
+    const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }))
+    a.href = url; a.download = `padron-${current?.election_year || 'seleccionado'}-${enabled ? 'habilitados' : 'no-habilitados'}.csv`; a.click(); URL.revokeObjectURL(url)
+  }
   if (role === 'registration') return <RegistrationDesk/>
   return <main className={`admin-page${isAdmin ? ' admin-with-navigation' : ''}`}>
     <header className="admin-header"><div className="admin-heading"><OfficialLogo className="admin-header-logo"/><div><p className="eyebrow">Ministerio Jezreel</p><h1>{isAdmin ? 'Administración de votaciones' : 'Habilitación de votantes'}</h1><p>{role === 'pastor' ? 'Pastor territorial · acceso limitado a tu territorio' : role === 'leader' ? 'Líder · acceso limitado a tu listado' : 'Elecciones anuales · voto secreto'}</p></div></div><button className="secondary" onClick={async () => { await logoutAdmin(); location.hash = '/admin/login' }}>Salir</button></header>
     {msg && <p className="notice" role="status">{msg}</p>}
+    {isAdmin && view === 'roster' && <RosterImport onImported={() => run(async () => {}, 'Padrón actualizado.')}/>}
+    {view === 'roster' && <div className="actions"><button disabled={!selectedElection || busy} onClick={() => exportRoster(true)}>Exportar habilitados CSV</button><button disabled={!selectedElection || busy} onClick={() => exportRoster(false)}>Exportar no habilitados CSV</button><small>Respeta el filtro del listado. Cédulas limitadas a los últimos cuatro caracteres.</small></div>}
 
     <section className="card election-picker"><label>Elección seleccionada<select value={selectedElection} onChange={e => setSelectedElection(e.target.value)}><option value="">Seleccionar…</option>{data.elections.map(e => <option key={e.id} value={e.id}>{e.election_year} · {e.title}</option>)}</select></label><button className="secondary" disabled={busy || !role} onClick={() => run(async () => {}, 'Datos actualizados.')}>Actualizar datos</button></section>
     {isAdmin && <nav className="actions admin-menu" aria-label="Administración de votaciones"><div className="admin-menu-brand"><OfficialLogo/><div><strong>Ministerio<br/>Jezreel</strong><span>Votaciones</span></div></div>{[['operation','Operación'],['election','Elecciones y cupos'],['candidates','Candidatos y fotos'],['roster','Habilitados'],['location','Ubicación y excepciones'],['results','Resultados'],['registration','Registro del día']].map(([id,label]) => <button key={id} className={view === id ? '' : 'secondary'} aria-current={view === id ? 'page' : undefined} onClick={() => { setView(id); if (current) setElection(electionDraft(current)) }}>{label}</button>)}</nav>}
