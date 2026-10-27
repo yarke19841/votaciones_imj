@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { positionForVoting, voterMessages as messages } from '../lib/voterFlow'
+import { positionForVoting, votingMessage, voterMessages as messages } from '../lib/voterFlow'
 import VotingLayout, { VoteIcon } from '../components/VotingLayout'
 
 export default function VoteLogin() {
@@ -28,7 +28,7 @@ export default function VoteLogin() {
       if (data.state === 'ready') { clearInterval(timer.current); nav('/vote', { state: { ballot: data } }); return }
       if (data.state === 'already_voted') { receipt({ ...context, ...data }); return }
       if (data.state === 'not_enabled') setEnabled(false)
-      setMsg(messages[data.reason || data.state] || 'No puedes continuar en esta ronda.')
+      setMsg(votingMessage(data, p))
       if (['closed', 'session_expired'].includes(data.state)) clearInterval(timer.current)
     } catch { setMsg('Activa la ubicación precisa para continuar y vuelve a revisar.') }
     finally { checking.current = false }
@@ -49,7 +49,7 @@ export default function VoteLogin() {
         clearInterval(timer.current); timer.current = setInterval(() => checkBallot(data.token), 10000)
         return
       }
-      setMsg(messages[data.reason || data.state] || 'No puedes continuar.')
+      setMsg(votingMessage(data, p))
     } catch { setMsg('Debes permitir la ubicación precisa para registrar tu llegada.') }
     finally { setBusy(false) }
   }

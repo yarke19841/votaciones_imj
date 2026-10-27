@@ -160,7 +160,7 @@ Exigir exactamente los cupos configurados por género: rechazar menos, más, dup
 5. Reglas no confirmadas sobre abstención, votos nulos, corrección de voto y duración configurable de sesión. La selección incompleta ya se rechaza por cupos exactos.
 6. Requisitos de candidatura y aprobación de postulaciones. Los cupos son configurables por género; no fijar permanentemente el ejemplo visual.
 7. Permisos adicionales a los ya confirmados por rol/territorio, acciones editables después de iniciar/cerrar y cualquier administración multiiglesia futura. No ampliar acceso por inferencia.
-8. Verificar implementación y pruebas de importación/exportación del padrón; conservar RF-001–RF-004 como requisitos sin anunciar disponibilidad sin evidencia.
+8. Importación/exportación implementadas con evidencia en `docs/ENTREGA_DEMO.md`; queda aceptación operativa de la responsable.
 9. Tratamiento de registros históricos que relacionan identidad y selecciones sin destruir su historial; contrastar estado técnico con la evidencia fechada.
 
 > **Instrucción para agentes:** no convertir pendientes de validación en decisiones de producto implícitas. Confirmar con la responsable antes de modificar reglas electorales sensibles.

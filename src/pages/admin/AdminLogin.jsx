@@ -9,9 +9,12 @@ export default function AdminLogin() {
   const [email,setEmail]=useState(''), [password,setPassword]=useState(''), [msg,setMsg]=useState(''), [pending,setPending]=useState(false)
   async function submit(event) {
     event.preventDefault(); setPending(true); setMsg('')
-    const result=await loginAdmin(email.trim(),password); setPending(false)
-    if(!result.ok) return setMsg(result.msg)
-    nav(loc?.state?.from?.pathname || '/admin',{replace:true})
+    try {
+      const result=await loginAdmin(email.trim(),password)
+      if(!result.ok) return setMsg(result.msg)
+      nav(loc?.state?.from?.pathname || '/admin',{replace:true})
+    } catch { setMsg('No se pudo completar el acceso. Revisa tu conexión y vuelve a intentar.') }
+    finally { setPending(false) }
   }
   return <main className="center-page"><form className="card auth-card" onSubmit={submit}>
     <OfficialLogo className="auth-logo"/>

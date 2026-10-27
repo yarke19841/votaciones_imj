@@ -25,6 +25,7 @@ export async function positionForVoting(geolocation = globalThis.navigator?.geol
 }
 
 export const voterMessages = {
+  gps_unavailable: 'No se pudo verificar tu ubicación. Permite la ubicación precisa y vuelve a intentar, o consulta a Administración sobre una excepción autorizada.',
   not_found: 'No encontramos esa cédula. Consulta al líder para verificar su registro.',
   not_enabled: 'Asistencia registrada. Tu habilitación electoral sigue pendiente.',
   not_in_tie_electorate: 'Esta ronda solo admite a quienes votaron en la ronda de origen.',
@@ -37,4 +38,9 @@ export const voterMessages = {
   configuration_required: 'Pendiente de configuración por Administración.',
   no_active_round: 'Todavía no se ha iniciado el ingreso a una votación.',
   invalid_selection: 'Revisa los cupos y los candidatos disponibles antes de enviar.'
+}
+
+export function votingMessage(data, position) {
+  if (data.state === 'location_denied' && (position?.lat == null || position?.lng == null)) return voterMessages.gps_unavailable
+  return voterMessages[data.reason || data.state] || 'No puedes continuar en esta ronda.'
 }

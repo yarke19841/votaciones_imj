@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "test:sql": "node tests/sql-contract.mjs",
     "test": "node --test tests/*.test.js",
-    "test:registration": "node tests/registration-contract.mjs"
+    "test:registration": "node tests/registration-contract.mjs",
+    "test:import": "node tests/import-contract.mjs",
+    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0",

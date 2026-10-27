@@ -61,7 +61,8 @@ export default function AdminHome() {
   useEffect(() => {
     let alive = true
     getAdminSession().then(async session => {
-      if (!alive || !session) return
+      if (!alive) return
+      if (!session) { setMsg('La sesión no está disponible. Vuelve a iniciar sesión.'); return }
       setRole(session.votingRole)
       try { if (session.votingRole !== 'registration') await refresh(session.votingRole) } catch (e) { if (alive) setMsg(e.message) }
     }).catch(e => { if (alive) setMsg(e.message) })
@@ -189,6 +190,7 @@ export default function AdminHome() {
     const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'text/csv;charset=utf-8' }))
     a.href = url; a.download = `padron-${current?.election_year || 'seleccionado'}-${enabled ? 'habilitados' : 'no-habilitados'}.csv`; a.click(); URL.revokeObjectURL(url)
   }
+  if (!role) return <main className="center-page"><section className="card" role="status"><h1>Administración de votaciones</h1><p>{msg || 'Cargando tu acceso…'}</p>{msg && <button onClick={() => { location.hash = '/admin/login'; location.reload() }}>Volver al ingreso</button>}</section></main>
   if (role === 'registration') return <RegistrationDesk/>
   return <main className={`admin-page${isAdmin ? ' admin-with-navigation' : ''}`}>
     {isAdmin && <button type="button" ref={menuToggle} className="admin-menu-toggle" aria-expanded={menuOpen} aria-controls="admin-navigation" onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}>☰ Menú</button>}
