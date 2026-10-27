@@ -67,6 +67,7 @@ th { background: #f0f3f7; color: #173556; }
 .admin-menu-brand { display: none; }
 .admin-grid > .card:only-child { grid-column: 1 / -1; }
 .admin-menu button { text-align: left; }
+.admin-menu-toggle, .admin-menu-close, .admin-menu-backdrop { display: none; }
 
 .voting-stage { font-family: var(--imj-font); color: var(--imj-ink); background: #f5f7fa; }
 .voting-brand { background: var(--imj-navy); }
@@ -130,14 +131,29 @@ th { background: #f0f3f7; color: #173556; }
   .developer-credit-admin { margin-left: 220px; }
 }
 @media (max-width: 999px) {
-  .admin-menu { gap: 6px; }
-  .admin-menu button { padding: 10px 12px; font-size: 14px; }
+  .admin-menu-toggle { display: inline-flex; padding: 12px 16px; margin-bottom: 16px; min-height: 44px; }
+  .admin-menu { display: none; }
+  .admin-menu.admin-menu-open {
+    display: flex; position: fixed; z-index: 51; inset: 0 auto 0 0;
+    width: min(84vw, 290px); height: 100dvh; overflow-y: auto;
+    padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom));
+    margin: 0; flex-flow: column nowrap; align-items: stretch; gap: 8px;
+    background: var(--imj-navy); box-shadow: 8px 0 30px #05285233;
+  }
+  .admin-menu .admin-menu-brand { display: flex; align-items: center; gap: 12px; padding: 12px 4px 20px; color: white; }
+  .admin-menu-brand strong { display: block; line-height: 1.2; }
+  .admin-menu-brand span:not(.official-logo) { display: block; margin-top: 6px; font-size: 12px; }
+  .admin-menu button, .admin-menu button.secondary { flex: none; min-height: 44px; padding: 12px; font-size: 15px; background: transparent; border: 0; color: white; }
+  .admin-menu .admin-menu-close { display: block; text-align: right; }
+  .admin-menu button[aria-current=page] { background: var(--imj-selected); }
+  .admin-menu button:focus-visible { outline: 3px solid white; outline-offset: -3px; }
+  .admin-menu-backdrop { display: block; position: fixed; z-index: 50; inset: 0; width: 100%; height: 100dvh; margin: 0; padding: 0; border: 0; border-radius: 0; background: #05285288; }
 }
 @media (max-width: 520px) {
   .admin-heading { gap: 10px; align-items: flex-start; }
   .admin-header-logo { width: 44px; height: 44px; flex-basis: 44px; }
   .admin-heading h1 { font-size: 24px; overflow-wrap: anywhere; }
   .admin-header { flex-wrap: wrap; }
-  .admin-menu button { flex: 1 1 135px; }
+  .admin-menu button { flex: none; }
   .voting-stage { background: white; }
 }

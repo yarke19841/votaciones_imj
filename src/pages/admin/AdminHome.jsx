@@ -35,6 +35,16 @@ export default function AdminHome() {
   const [exceptions, setExceptions] = useState([]), [exception, setException] = useState({ person: '', from: '', until: '', reason: '' })
   const [results, setResults] = useState(null)
   const [view, setView] = useState('operation')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuToggle = useRef(null), menuClose = useRef(null)
+  function closeMenu() { setMenuOpen(false); menuToggle.current?.focus() }
+  useEffect(() => {
+    if (!menuOpen) return
+    menuClose.current?.focus()
+    function escape(event) { if (event.key === 'Escape') { setMenuOpen(false); menuToggle.current?.focus() } }
+    document.addEventListener('keydown', escape)
+    return () => document.removeEventListener('keydown', escape)
+  }, [menuOpen])
   const isAdmin = role === 'admin'
   const current = useMemo(() => data.elections.find(e => e.id === selectedElection), [data.elections, selectedElection])
   const coverage = data.member_coverage
@@ -181,13 +191,15 @@ export default function AdminHome() {
   }
   if (role === 'registration') return <RegistrationDesk/>
   return <main className={`admin-page${isAdmin ? ' admin-with-navigation' : ''}`}>
+    {isAdmin && <button type="button" ref={menuToggle} className="admin-menu-toggle" aria-expanded={menuOpen} aria-controls="admin-navigation" onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}>☰ Menú</button>}
+    {isAdmin && menuOpen && <button type="button" className="admin-menu-backdrop" aria-label="Cerrar menú lateral" onClick={closeMenu}/>}
     <header className="admin-header"><div className="admin-heading"><OfficialLogo className="admin-header-logo"/><div><p className="eyebrow">Ministerio Jezreel</p><h1>{isAdmin ? 'Administración de votaciones' : 'Habilitación de votantes'}</h1><p>{role === 'pastor' ? 'Pastor territorial · acceso limitado a tu territorio' : role === 'leader' ? 'Líder · acceso limitado a tu listado' : 'Elecciones anuales · voto secreto'}</p></div></div><button className="secondary" onClick={async () => { await logoutAdmin(); location.hash = '/admin/login' }}>Salir</button></header>
     {msg && <p className="notice" role="status">{msg}</p>}
     {isAdmin && view === 'roster' && <RosterImport onImported={() => run(async () => {}, 'Padrón actualizado.')}/>}
     {view === 'roster' && <div className="actions"><button disabled={!selectedElection || busy} onClick={() => exportRoster(true)}>Exportar habilitados CSV</button><button disabled={!selectedElection || busy} onClick={() => exportRoster(false)}>Exportar no habilitados CSV</button><small>Respeta el filtro del listado. Cédulas limitadas a los últimos cuatro caracteres.</small></div>}
 
     <section className="card election-picker"><label>Elección seleccionada<select value={selectedElection} onChange={e => setSelectedElection(e.target.value)}><option value="">Seleccionar…</option>{data.elections.map(e => <option key={e.id} value={e.id}>{e.election_year} · {e.title}</option>)}</select></label><button className="secondary" disabled={busy || !role} onClick={() => run(async () => {}, 'Datos actualizados.')}>Actualizar datos</button></section>
-    {isAdmin && <nav className="actions admin-menu" aria-label="Administración de votaciones"><div className="admin-menu-brand"><OfficialLogo/><div><strong>Ministerio<br/>Jezreel</strong><span>Votaciones</span></div></div>{[['operation','Operación'],['election','Elecciones y cupos'],['candidates','Candidatos y fotos'],['roster','Habilitados'],['location','Ubicación y excepciones'],['results','Resultados'],['registration','Registro del día']].map(([id,label]) => <button key={id} className={view === id ? '' : 'secondary'} aria-current={view === id ? 'page' : undefined} onClick={() => { setView(id); if (current) setElection(electionDraft(current)) }}>{label}</button>)}</nav>}
+    {isAdmin && <nav id="admin-navigation" className={`actions admin-menu${menuOpen ? ' admin-menu-open' : ''}`} aria-label="Administración de votaciones"><button type="button" ref={menuClose} className="admin-menu-close" onClick={closeMenu}>Cerrar menú ×</button><div className="admin-menu-brand"><OfficialLogo/><div><strong>Ministerio<br/>Jezreel</strong><span>Votaciones</span></div></div>{[['operation','Operación'],['election','Elecciones y cupos'],['candidates','Candidatos y fotos'],['roster','Habilitados'],['location','Ubicación y excepciones'],['results','Resultados'],['registration','Registro del día']].map(([id,label]) => <button key={id} className={view === id ? '' : 'secondary'} aria-current={view === id ? 'page' : undefined} onClick={() => { setView(id); closeMenu(); if (current) setElection(electionDraft(current)) }}>{label}</button>)}</nav>}
     {isAdmin && view === 'registration' && <RegistrationDesk key={selectedElection} admin electionId={selectedElection} electionDate={current?.registration_date} onSettingsChanged={() => refresh(role)}/>}
     <section className="admin-grid">
       {isAdmin && view === 'election' && <article className="card"><h2>Elecciones y cupos</h2><div className="actions"><button className="secondary" onClick={() => setElection(blankElection())}>Nueva elección</button><button className="secondary" disabled={!current} onClick={() => setElection(electionDraft(current))}>Editar la seleccionada</button></div><form onSubmit={saveElection}><div className="form-grid">
