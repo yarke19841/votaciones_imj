@@ -5,6 +5,7 @@ import App from "./App.jsx"
 import "./styles/ui.css"
 import "./index.css"
 import "./styles/identity.css"
+import "./styles/admin-reference.css"
 
 // Preserve the two entry links issued for the original prototype.
 if (window.location.hash === '#admin') window.history.replaceState(null, '', '#/admin')

@@ -89,7 +89,7 @@ Preferir componentes y estilos centralizados para Button, Input, Select, Card, S
 
 ## Crédito de desarrollo aprobado
 
-**Menú administrativo responsive:** en escritorio permanece lateral izquierdo. En móvil se abre un panel lateral azul marino con el botón visible «Menú»; se cierra al seleccionar una sección, pulsar «Cerrar menú», tocar el fondo o usar Escape. No sustituirlo por una cuadrícula de botones que desplace el contenido.
+**Adaptación móvil pendiente de revisión visual:** el panel lateral desplegable fue una decisión de implementación; no consta aprobación específica de esa adaptación. La revisión del 28 de octubre presenta una cabecera compacta con el logo circular y un botón para abrir el menú. Debe mostrarse a la responsable antes de publicar esta corrección. Una anotación del desarrollador en este spec no constituye aprobación.
 
 Decisión confirmada por la responsable del proyecto: mostrar **Desarrollado por Zykodio** al final de las pantallas del módulo, tanto para votantes como para administración. El crédito debe ser discreto, legible, responsive y no cubrir controles ni sustituir la identidad de Ministerio Jezreel. No presentar Zykodio como marca registrada ni añadir símbolos de registro. El registro legal permanece pendiente; el crédito no acredita titularidad exclusiva del nombre.
 
