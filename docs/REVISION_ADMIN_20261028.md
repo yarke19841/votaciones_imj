@@ -1,6 +1,6 @@
 # Corrección administrativa para revisión
 
-Estado: implementada en código, pendiente de revisión visual y publicación.
+Estado: mostrada a la responsable y publicada tras su instrucción «Publícalo» en el mismo sitio. Entrega posterior de Asistencia Rápida: `ENTREGA_PENDIENTES_20261031.md`.
 
 Referencia: `docs/referencias/Referencia_Administracion_IMJ.jpeg`. Se conserva el logo original con presentación circular, la paleta marina/blanco/celeste y Arial/Helvetica como aproximación de la fuente original.
 
@@ -10,4 +10,4 @@ La muestra local `/review/index.html` utiliza los componentes reales de presenta
 
 Pendientes funcionales conocidos: revisar la integración de Asistencia Rápida con las APIs vigentes; el componente legado no está conectado al panel. No se declara el sistema completo ni listo para una elección real por completar esta corrección visual.
 
-No publicar la corrección visual hasta que la responsable revise las vistas.
+La aprobación para publicar se recibió después de esta revisión; no interpretarla como aprobación automática de futuras pantallas.

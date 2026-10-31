@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:isolated": "node tests/serve-browser.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "test:sql": "node tests/sql-contract.mjs",
     "test": "node --test tests/*.test.js",
     "test:registration": "node tests/registration-contract.mjs",
     "test:import": "node tests/import-contract.mjs",
-    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import"
+    "test:quick": "node tests/church-quick-contract.mjs",
+    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0",

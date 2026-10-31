@@ -16,6 +16,7 @@ try {
  await db.exec("alter table public.territories add column name text; update public.territories set name='Territorio '||id; insert into public.territories(id,is_active,active,name) values(3,true,true,'Territorio C')")
  const dir = new URL('../supabase/migrations/',import.meta.url)
  for (const f of (await readdir(dir)).filter(f => f.endsWith('.sql')).sort()) await db.exec(await readFile(new URL(f,dir),'utf8'))
+ await db.exec("update voting_private.church_location set latitude=9,longitude=-79 where church_key='imj'")
  await actor(null); await rejected('anonymous cannot import', () => load())
  await actor(2); await rejected('leader cannot import', () => load())
  await actor(3); await rejected('pastor cannot import', () => load())

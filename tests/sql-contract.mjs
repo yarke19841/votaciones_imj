@@ -22,6 +22,8 @@ try {
   await db.exec(await readFile(new URL('./bethel-fixture.sql',import.meta.url),'utf8'));
   const dir = new URL('../supabase/migrations/',import.meta.url);
   for(const f of (await readdir(dir)).filter(f=>f.endsWith('.sql')).sort()) await db.exec(await readFile(new URL(f,dir),'utf8'));
+  // Test-only church point; production migration retains IMJ's approved coordinates.
+  await db.exec("update voting_private.church_location set latitude=9,longitude=-79 where church_key='imj'");
   await actor('anon',null);
   await denied('anonymous cannot read tallies',()=>q('select * from public.voting_tallies'));
   await denied('anonymous cannot read private identities',()=>q('select * from voting_private.identities'));

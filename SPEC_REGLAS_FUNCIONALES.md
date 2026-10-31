@@ -171,3 +171,14 @@ Exigir exactamente los cupos configurados por género: rechazar menos, más, dup
 - [Figma — Votaciones IMJ, referencias visuales](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5) (carga de capturas pendiente de confirmación).
 
 **Principio rector:** Un votante habilitado, presente y autorizado puede votar una sola vez por elección/ronda, con secreto del voto y trazabilidad administrativa.
+
+## 14. Precisión confirmada e implementación del 31-10-2026
+
+- Ubicación única de Ministerio Jezreel: latitud `9.03782`, longitud `-79.46696`. Se conserva en configuración privada del módulo IMJ y se hereda al configurar el radio de cada elección. El panel muestra el punto como solo lectura; no se pide nuevamente ni se sustituye por la ubicación del teléfono. No modifica calendarios ni configuraciones de otros módulos de Bethel.
+- El radio continúa siendo configurable por Administración. Sin radio, la votación continúa pendiente de configuración.
+- Asistencia Rápida integrada en el menú administrativo: elección, jornada/ronda, fecha de Panamá, búsqueda exacta de cédula normalizada, asistencia idempotente e indicadores de miembros únicos. No crea personas ni identidades. Solo registra llegadas del día actual en rondas con ingreso o votación abierta, comprobando el GPS del equipo del administrador. La presencia asistida se distingue de la entrada por GPS del propio votante y queda auditada.
+- La acción disponible sobre una persona existente es **Habilitar para votar**, separada de asistencia. No cambia registros ni estados de activación de miembros de Bethel; esas facultades heredadas siguen sujetas a la autorización y modelo de ese módulo.
+- El selector de fecha permite consulta histórica, no fabricar asistencias retroactivas. El control de voto único y las verificaciones de ubicación al votar se mantienen.
+- Preparación del desempate accesible desde Resultados tras elegir política de asistencia; no se abre automáticamente.
+
+Evidencia de validación y límites: `docs/ENTREGA_PENDIENTES_20261031.md`.

@@ -6,7 +6,7 @@ export const adminSections = [
   ['operation', 'Votaciones', 'ballot'], ['candidates', 'Candidatos', 'person'],
   ['roster', 'Habilitados', 'list'], ['results', 'Resultados', 'chart'],
   ['practice', 'Simulacro 2026', 'catalog'], ['election', 'Elecciones y cupos', 'settings'],
-  ['location', 'Ubicación y excepciones', 'pin'], ['registration', 'Registro del día', 'list'],
+  ['location', 'Ubicación y excepciones', 'pin'], ['checkin', 'Asistencia Rápida', 'person'], ['registration', 'Registro del día', 'list'],
 ]
 
 function Icon({ name }) {

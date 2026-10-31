@@ -310,3 +310,11 @@ Verificación de lectura: 5–6 de octubre de 2026. Estas observaciones no son r
 - Mantener las reglas de secreto, voto único y exclusión de aperturas en la capa que registra los datos, además de reflejarlas en la interfaz.
 - Documentar qué se implementó, qué se probó y qué sigue pendiente.
 - Confirmado el 8 de octubre: informar de inmediato cuando una decisión, aprobación o acceso faltante impida continuar. Explicar qué falta, qué parte bloquea y qué trabajo puede continuar sin ello. No detener tareas independientes por una configuración operativa pendiente ni dar a entender que se está trabajando cuando no hay ejecución activa. Distinguir avances realizados de próximos pasos; no prometer avances o avisos en segundo plano sin un mecanismo activo.
+## 14. Ubicación fija y asistencia rápida — precisión confirmada el 31 de octubre de 2026
+
+- Yarquelis indicó que las coordenadas se guardan una sola vez en el espacio de la iglesia, no se vuelven a introducir en cada elección: Ministerio Jezreel, latitud `9.03782`, longitud `-79.46696`.
+- La ubicación se conserva en configuración privada del módulo IMJ; elecciones y simulacros reutilizan ese punto. Administración continúa configurando el radio. El teléfono no redefine el punto de la iglesia.
+- Asistencia Rápida busca una cédula exacta normalizada y registra la llegada de una persona existente, sin crear miembros. Fecha de Panamá y jornada/ronda explícitas; consulta histórica separada del registro del día actual. Solo Administración recibe la nueva acción asistida; no se amplían permisos de líderes ni pastores.
+- La asistencia asistida requiere confirmar la presencia física y verificar el GPS del equipo en la iglesia. Se audita con origen diferenciado. No habilita ni emite votos automáticamente; la habilitación electoral de una persona existente es una acción aparte. No cambia estados de activación de miembros de Bethel.
+- El votante sigue sujeto a habilitación, asistencia, ubicación actual, ronda abierta, cupos y voto único. La preparación de desempate exige seleccionar la política de asistencia y no lo abre automáticamente.
+- Evidencia técnica del repositorio: `docs/ENTREGA_PENDIENTES_20261031.md`. La prueba de navegador con datos ficticios y GPS simulado no sustituye la validación operativa del GPS real en la iglesia.
