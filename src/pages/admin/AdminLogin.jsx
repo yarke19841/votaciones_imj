@@ -1,76 +1,27 @@
-// src/pages/admin/AdminLogin.jsx
-import { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
-import { loginAdmin, isAdmin } from "../../lib/authAdmin"
+import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { loginAdmin } from '../../lib/authAdmin'
+import { isQaEnvironment } from '../../lib/supabase'
+import OfficialLogo from '../../components/OfficialLogo'
 
 export default function AdminLogin() {
-  const nav = useNavigate()
-  const loc = useLocation()
-  const [pass, setPass] = useState("")
-  const [msg, setMsg]   = useState("")
-  const [pending, setPending] = useState(false)
-
-  // Si ya eres admin, manda al panel
-  useEffect(() => {
-    if (isAdmin()) nav("/admin", { replace: true })
-  }, [nav])
-
-  function submit(e) {
-    e.preventDefault()
-    if (pending) return
-    setMsg("")
-    setPending(true)
-    const { ok, msg } = loginAdmin(pass)
-    setPending(false)
-    if (!ok) { setMsg(msg || "Error"); return }
-
-    // Destino: si venías de una ruta protegida te devuelve allí; si no, al panel
-    const from =
-      loc?.state?.from?.pathname ||
-      loc?.state?.from ||
-      "/admin"
-
-    nav(from, { replace: true })
+  const nav = useNavigate(), loc = useLocation()
+  const [email,setEmail]=useState(''), [password,setPassword]=useState(''), [msg,setMsg]=useState(''), [pending,setPending]=useState(false)
+  async function submit(event) {
+    event.preventDefault(); setPending(true); setMsg('')
+    try {
+      const result=await loginAdmin(email.trim(),password)
+      if(!result.ok) return setMsg(result.msg)
+      nav(loc?.state?.from?.pathname || '/admin',{replace:true})
+    } catch { setMsg('No se pudo completar el acceso. Revisa tu conexión y vuelve a intentar.') }
+    finally { setPending(false) }
   }
-
-  const s = {
-    page: { minHeight:"100vh", background:"#f3f4f6", fontFamily:"system-ui,-apple-system,Segoe UI,Roboto", display:"grid", placeItems:"center", padding:"24px 16px" },
-    card: { maxWidth:420, width:"100%", background:"#fff", border:"1px solid #e5e7eb", borderRadius:16, padding:24, boxShadow:"0 8px 24px rgba(0,0,0,.06)" },
-    title:{ fontSize:20, fontWeight:700, marginBottom:12, textAlign:"center" },
-    label:{ display:"block", fontSize:14, fontWeight:600, marginBottom:6 },
-    input:{ width:"100%", padding:"10px 12px", border:"1px solid #d1d5db", borderRadius:10, outline:"none", marginBottom:10 },
-    btn:  { width:"100%", padding:"12px 16px", borderRadius:12, border:"1px solid #2563eb", background:"#2563eb", color:"#fff", fontWeight:700, cursor:"pointer", opacity: pending ? .7 : 1 },
-    err:  { color:"#e11d48", fontSize:13, marginBottom:10, textAlign:"center" },
-    hint: { fontSize:12, color:"#6b7280", textAlign:"center", marginTop:8 }
-  }
-
-  return (
-    <div style={s.page}>
-      <form style={s.card} onSubmit={submit}>
-        <div style={{textAlign:"center", fontSize:36}}>🔐</div>
-        <div style={s.title}>Acceso Administrador</div>
-
-        <label style={s.label}>Clave de administrador</label>
-        <input
-          type="password"
-          style={s.input}
-          value={pass}
-          onChange={e=>setPass(e.target.value)}
-          placeholder="••••••••"
-          autoFocus
-        />
-
-        {msg && <div style={s.err}>{msg}</div>}
-
-        <button style={s.btn} type="submit" disabled={pending}>
-          {pending ? "Validando..." : "Entrar"}
-        </button>
-
-        <div style={s.hint}>
-          {/* Quita esto en producción */}
-          Pista: cambia la clave con VITE_ADMIN_PASS en tu .env.local
-        </div>
-      </form>
-    </div>
-  )
+  return <main className="center-page"><form className="card auth-card" onSubmit={submit}>
+    <OfficialLogo className="auth-logo"/>
+    <p className="eyebrow">Ministerio Jezreel</p><h1>Panel de votaciones</h1><p>Administración, personal de registro, pastores territoriales y líderes.</p>
+    <label>{isQaEnvironment ? 'Usuario o correo' : 'Correo'}<input type={isQaEnvironment ? 'text' : 'email'} autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required /></label>
+    <label>Contraseña<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required /></label>
+    {msg && <p className="error" role="alert">{msg}</p>}
+    <button disabled={pending}>{pending?'Validando…':'Entrar'}</button>
+  </form></main>
 }

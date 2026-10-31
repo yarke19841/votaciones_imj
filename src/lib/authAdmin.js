@@ -1,38 +1,27 @@
-// src/lib/authAdmin.js
+import { supabase, isQaEnvironment } from './supabase'
 
-const STORAGE_KEY = "role"
-const ADMIN_ROLE  = "admin"
-
-// ⚠️ Cambia esta clave por una variable de entorno si quieres.
-// Ej.: import.meta.env.VITE_ADMIN_PASS
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || "12345"
-
-export function isAdmin() {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === ADMIN_ROLE
-  } catch {
-    return false
-  }
+export async function getAdminSession() {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user) return null
+  const { data, error } = await supabase.from('profiles').select('role,is_active').eq('user_id', session.user.id).maybeSingle()
+  if (!error && data?.is_active && data.role === 'admin') return { ...session, votingRole: data.role }
+  const { data: access, error: registrationError } = await supabase.rpc('voting_registration_access')
+  if (!registrationError && access?.elections?.length) return { ...session, votingRole: 'registration' }
+  if (!error && data?.is_active && ['pastor', 'leader'].includes(data.role)) return { ...session, votingRole: data.role }
+  return null
 }
 
-export function loginAdmin(pass) {
-  if (!pass || typeof pass !== "string") {
-    return { ok: false, msg: "Ingresa tu clave." }
+export async function loginAdmin(email, password) {
+  const aliases = { sa: 'qa-voting-20261014-admin@example.invalid', registro: 'qa-voting-registration@example.invalid' }
+  const loginEmail = isQaEnvironment ? (aliases[email.trim().toLowerCase()] || email) : email
+  const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password })
+  if (error) return { ok: false, msg: 'Correo o contraseña incorrectos.' }
+  const session = await getAdminSession()
+  if (!session) {
+    await supabase.auth.signOut()
+    return { ok: false, msg: 'Esta cuenta no tiene acceso activo al panel de votaciones.' }
   }
-  if (pass.trim() !== ADMIN_PASS) {
-    return { ok: false, msg: "Clave incorrecta." }
-  }
-  try {
-    localStorage.setItem(STORAGE_KEY, ADMIN_ROLE)
-    localStorage.setItem("admin_logged_at", String(Date.now()))
-  } catch (e) {
-    return { ok: false, msg: "No se pudo guardar sesión (localStorage bloqueado)." }
-  }
-  return { ok: true, msg: "OK" }
+  return { ok: true, session: data.session }
 }
 
-export function logoutAdmin() {
-  try {
-    if (isAdmin()) localStorage.removeItem(STORAGE_KEY)
-  } catch {}
-}
+export async function logoutAdmin() { await supabase.auth.signOut() }
