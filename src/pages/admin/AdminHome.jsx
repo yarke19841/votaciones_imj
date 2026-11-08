@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase'
 import { getAdminSession, logoutAdmin } from '../../lib/authAdmin'
 import RegistrationDesk from './RegistrationDesk'
 import AdminQuickCheckIn from './AdminQuickCheckIn'
+import AdminQuorum from './AdminQuorum'
 import { classifyResults } from '../../lib/adminResults'
 import { AdminNavigation, AdminPageHeader, CandidateWorkspace, ResultPanels } from '../../components/AdminReferenceUI'
 import RosterImport from './RosterImport'
@@ -169,7 +170,7 @@ export default function AdminHome() {
   if (role === 'registration') return <RegistrationDesk/>
   return <main className={`admin-page${isAdmin ? ' admin-with-navigation' : ''}`}>
     {isAdmin && menuOpen && <button type="button" className="admin-menu-backdrop" aria-label="Cerrar menú lateral" onClick={closeMenu}/>}
-    <AdminPageHeader title={isAdmin ? ({operation:'Votaciones',candidates:`Candidatos oficiales · ${current?.election_year || 'Seleccionar año'}`,practice:'Catálogo del simulacro 2026',results:`Resultados · ${current?.election_year || 'Seleccionar año'}`,roster:'Habilitados',election:'Elecciones y cupos',location:'Ubicación y excepciones',checkin:'Asistencia Rápida',registration:'Registro del día'}[view]) : 'Habilitación de votantes'} elections={data.elections} selected={selectedElection} onElectionChange={setSelectedElection} busy={busy} onRefresh={() => run(async () => {}, 'Datos actualizados.')} onExit={async () => { await logoutAdmin(); location.hash = '/admin/login' }} onMenu={() => menuOpen ? closeMenu() : setMenuOpen(true)} menuRef={menuToggle} menuOpen={menuOpen}/>
+    <AdminPageHeader title={isAdmin ? ({operation:'Votaciones',candidates:`Candidatos oficiales · ${current?.election_year || 'Seleccionar año'}`,practice:'Catálogo del simulacro 2026',results:`Resultados · ${current?.election_year || 'Seleccionar año'}`,roster:'Habilitados',election:'Elecciones y cupos',location:'Ubicación y excepciones',quorum:'Quórum',checkin:'Asistencia Rápida',registration:'Permisos de recepción'}[view]) : 'Habilitación de votantes'} elections={data.elections} selected={selectedElection} onElectionChange={setSelectedElection} busy={busy} onRefresh={() => run(async () => {}, 'Datos actualizados.')} onExit={async () => { await logoutAdmin(); location.hash = '/admin/login' }} onMenu={() => menuOpen ? closeMenu() : setMenuOpen(true)} menuRef={menuToggle} menuOpen={menuOpen}/>
     {msg && <p className="notice" role="status">{msg}</p>}
     {isAdmin && view === 'roster' && <RosterImport onImported={() => run(async () => {}, 'Padrón actualizado.')}/>}
     {view === 'roster' && <div className="actions"><button disabled={!selectedElection || busy} onClick={() => exportRoster(true)}>Exportar habilitados CSV</button><button disabled={!selectedElection || busy} onClick={() => exportRoster(false)}>Exportar no habilitados CSV</button><small>Respeta el filtro del listado. Cédulas limitadas a los últimos cuatro caracteres.</small></div>}
@@ -177,6 +178,7 @@ export default function AdminHome() {
     {isAdmin && <AdminNavigation view={view} open={menuOpen} closeRef={menuClose} onClose={closeMenu} onSelect={id => { setView(id); closeMenu(); setCandidate({ ...blankCandidate(), practice: id === 'practice' }); setPhotoFile(null); setPhotoKey(k => k + 1); if (current) setElection(electionDraft(current)) }}/>}
     {isAdmin && view === 'registration' && <RegistrationDesk key={selectedElection} admin electionId={selectedElection} electionDate={current?.registration_date} onSettingsChanged={() => refresh(role)}/>}
     <section className="admin-grid">
+      {isAdmin && view === 'quorum' && <AdminQuorum key={selectedElection} election={current} rounds={rounds} onSaved={() => refresh(role)}/>}
       {isAdmin && view === 'checkin' && <AdminQuickCheckIn key={selectedElection} electionId={selectedElection} rounds={rounds} onChanged={() => refresh(role)}/>}
       {isAdmin && view === 'election' && <article className="card"><h2>Elecciones y cupos</h2><div className="actions"><button className="secondary" onClick={() => setElection(blankElection())}>Nueva elección</button><button className="secondary" disabled={!current} onClick={() => setElection(electionDraft(current))}>Editar la seleccionada</button></div><form onSubmit={saveElection}><div className="form-grid">
         <label>Año<input required type="number" min="2026" step="1" value={election.year} onChange={e => setElection({ ...election, year: e.target.value })}/></label><label>Título<input required value={election.title} onChange={e => setElection({ ...election, title: e.target.value })}/></label>

@@ -13,7 +13,8 @@
     "test:registration": "node tests/registration-contract.mjs",
     "test:import": "node tests/import-contract.mjs",
     "test:quick": "node tests/church-quick-contract.mjs",
-    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick"
+    "test:quorum": "node tests/quorum-reception-contract.mjs",
+    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick && npm run test:quorum"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0",

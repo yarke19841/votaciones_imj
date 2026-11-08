@@ -1,7 +1,7 @@
 # SPEC DE REGLAS FUNCIONALES — Votaciones IMJ
 
 **Identificador:** SPEC-FUNC-001  
-**Versión:** 1.1 (conciliación con reglas confirmadas al 17-10-2026)
+**Versión:** 1.2 (quórum y Recepción confirmados al 08-11-2026)
 
 **Estado:** Reglas conocidas y pendientes de validación identificadas  
 **Proyecto:** votaciones_imj  
@@ -182,3 +182,9 @@ Exigir exactamente los cupos configurados por género: rechazar menos, más, dup
 - Preparación del desempate accesible desde Resultados tras elegir política de asistencia; no se abre automáticamente.
 
 Evidencia de validación y límites: `docs/ENTREGA_PENDIENTES_20261031.md`.
+
+## Ampliación confirmada: quórum y Recepción (08-11-2026)
+
+**RF-QUORUM.** Administración dispone de un menú Quórum y configura un porcentaje mayor que cero y hasta cien, con dos decimales. Para cada jornada de simulacro u oficial, muestra habilitados presentes / habilitados totales, porcentaje, mínimo redondeado hacia arriba y faltantes; se actualiza cada cinco segundos. Sin porcentaje o padrón no se acredita quórum. El indicador de miembros de RF-016 permanece separado. No abre ni cierra la votación automáticamente.
+
+**RF-RECEPCION.** Administración asigna por elección y fecha de Panamá un permiso independiente de Recepción. Permite buscar una cédula exacta, registrar asistencia física y crear/habilitar personas ausentes del padrón con GPS válido. No puede revertir denegaciones o revocaciones administrativas, consultar/configurar quórum, administrar elecciones ni consultar resultados. El votante conserva el registro automático y único de llegada. Los detalles y criterios vigentes están en la sección 15 de las reglas consolidadas.

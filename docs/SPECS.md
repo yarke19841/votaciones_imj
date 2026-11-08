@@ -1,6 +1,6 @@
 # Especificaciones de Votaciones IMJ
 
-Actualizado: 17 de octubre de 2026 (Panamá).
+Actualizado: 8 de noviembre de 2026 (Panamá).
 
 Este índice reúne los SPEC del repositorio. Un requisito documentado no acredita que esté implementado, desplegado o aprobado mediante pruebas.
 
@@ -29,3 +29,5 @@ Los elementos provisionales de capturas antiguas no invalidan decisiones posteri
 Conservar los originales en `docs/referencias/` junto al código para que el proyecto no dependa únicamente de enlaces externos. Las variantes aplicadas en la interfaz deben preservar el emblema y permitir comparar con esos originales. Los enlaces Figma del SPEC de diseño son referencias externas; no prueban que se hayan cargado o validado sus imágenes.
 
 Al actualizar una regla, registrar la decisión sin borrar requisitos vigentes, conciliar los SPEC afectados y mantener separado el estado de implementación. No resolver pendientes sensibles mediante suposiciones ni declarar listas funciones sin evidencia.
+
+- [Entrega de quórum y Recepción](./ENTREGA_QUORUM_RECEPCION_20261108.md): reglas confirmadas, permisos independientes y evidencia de pruebas.

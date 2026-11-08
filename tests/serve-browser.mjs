@@ -23,6 +23,10 @@ for(const kind of ['practice','official']) {
  for(const [name,gender] of [['Mujer A','F'],['Mujer B','F'],['Hombre A','M'],['Hombre B','M']]) ids.push(await rpc('voting_admin_save_candidate',[null,kind==='practice'?null:e,`${kind==='practice'?'Sim':'Oficial'} ${name}`,gender,null,kind==='practice',true]))
  await rpc('voting_admin_save_round',[null,e,kind,1,'new',1,1,ids])
 }
+const receptionist='00000000-0000-0000-0000-000000000004'
+await q('insert into auth.users(id,email) values($1,$2)',[receptionist,'reception@example.test'])
+await rpc('voting_admin_registration_date',[e,await scalar("select (now() at time zone 'America/Panama')::date::text")])
+await rpc('voting_admin_registration_staff',[e,receptionist,true])
 await db.exec('reset role')
 const signatures=new Map((await q("select p.proname,p.proargnames,p.proretset from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'voting_%'")).map(p=>[p.proname,p]))
 let queue=Promise.resolve()
@@ -41,8 +45,9 @@ const server=await createServer({root,configFile:false,plugins:[react(),{
   if(!signature) {res.statusCode=404;res.end('{}');return}
   const args=JSON.parse(Buffer.concat(chunks).toString()||'{}')
   const run=async()=>{try{
-   await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[req.headers['x-fixture-admin']==='yes'?admin:''])
-   await db.exec(req.headers['x-fixture-admin']==='yes'?'set role authenticated':'set role anon')
+   const actor=[admin,receptionist].includes(req.headers['x-fixture-user'])?req.headers['x-fixture-user']:''
+   await db.exec('reset role');await q("select set_config('request.jwt.claim.sub',$1,false)",[actor])
+   await db.exec(actor?'set role authenticated':'set role anon')
    const names=(signature.proargnames||[]).filter(n=>Object.hasOwn(args,n))
    const rows=await q(`select * from public.${name}(${names.map((n,i)=>`${n} => $${i+1}`).join(',')})`,names.map(n=>args[n]))
    const data=signature.proretset?rows:rows[0]?.[name]
