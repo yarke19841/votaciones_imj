@@ -60,7 +60,40 @@ begin
  where d.election_id=p_election_id and d.registration_day=day and (admin or (voting_private.can_admit(p_election_id) and d.registered_by=auth.uid()))),'[]'::jsonb));
 end;
 $$;
-revoke all on function public.voting_register_person(uuid,text,text,double precision,double precision) from public,anon,authenticated;
+-- Keep the legacy registration API available to Administration.
+create or replace function public.voting_register_person(p_election_id uuid,p_full_name text,p_cedula text,p_latitude double precision,p_longitude double precision)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare e public.voting_elections%rowtype; r public.voting_rounds%rowtype; normalized text;
+ pid bigint; ident uuid; rid uuid;
+begin
+ if not voting_private.is_admin() then raise exception 'Solo Administración puede usar el registro anterior; usa Nuevo ingreso' using errcode='42501'; end if;
+ -- Lock configuration and staff permission until this atomic registration commits.
+ select * into e from public.voting_elections where id=p_election_id for share;
+ perform 1 from voting_private.registration_staff where election_id=p_election_id and user_id=auth.uid() for share;
+ if not voting_private.can_register(p_election_id) then raise exception 'Personal de registro inactivo: acceso solo el día autorizado' using errcode='42501'; end if;
+ select * into r from public.voting_rounds where election_id=p_election_id and status in('checkin','open') and round_kind<>'tie' for share;
+ if r.id is null then raise exception 'Administración debe iniciar el ingreso de la votación'; end if;
+ if e.church_latitude is null or e.church_longitude is null or e.radius_meters is null then raise exception 'Ubicación pendiente de configuración'; end if;
+ if p_latitude is null or p_longitude is null or not(p_latitude between -90 and 90) or not(p_longitude between -180 and 180) then raise exception 'No se pudo verificar la ubicación actual'; end if;
+ if not(voting_private.distance_m(e.church_latitude,e.church_longitude,p_latitude,p_longitude)<=e.radius_meters) then raise exception 'Está fuera del límite permitido para votar'; end if;
+ if p_full_name is null or length(trim(p_full_name))<3 or length(trim(p_full_name))>200 then raise exception 'Introduce el nombre completo'; end if;
+ normalized:=upper(regexp_replace(coalesce(p_cedula,''),'[^0-9A-Za-z]','','g'));
+ if length(normalized)<5 or length(normalized)>40 then raise exception 'Cédula inválida'; end if;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(normalized,0));
+ if exists(select 1 from voting_private.identities where cedula_hash=voting_private.cedula_hash(normalized)) then raise exception 'La persona ya está registrada. Administración debe revisar su habilitación; no se creará un duplicado'; end if;
+ insert into public.people(full_name) values(trim(p_full_name)) returning id into pid;
+ insert into voting_private.identities(person_id,cedula_hash,cedula_last4,created_by)
+ values(pid,voting_private.cedula_hash(normalized),right(normalized,4),auth.uid()) returning id into ident;
+ insert into voting_private.identity_people(person_id,identity_id) values(pid,ident);
+ insert into voting_private.eligibility(election_id,identity_id,enabled,enabled_by) values(p_election_id,ident,true,auth.uid());
+ insert into voting_private.attendance(round_id,identity_id,latitude,longitude,source) values(r.id,ident,p_latitude,p_longitude,'gps');
+ insert into voting_private.day_registrations(election_id,round_id,person_id,identity_id,registered_by)
+ values(e.id,r.id,pid,ident,auth.uid()) returning id into rid;
+ insert into voting_private.audit_log(actor_id,action,entity_type,entity_id,detail)
+ values(auth.uid(),'register_enable_attend','person',pid::text,jsonb_build_object('election_id',e.id,'round_id',r.id,'registration_id',rid));
+ return jsonb_build_object('ok',true,'registration_id',rid,'person_id',pid,'enabled',true,'attended',true);
+end;
+$$;
 create or replace function public.voting_reception_attend(p_election_id uuid,p_cedula text,p_latitude double precision,p_longitude double precision)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare r public.voting_rounds%rowtype; e public.voting_elections%rowtype; i voting_private.identities%rowtype; normalized text; added integer;
