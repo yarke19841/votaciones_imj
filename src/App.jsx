@@ -15,7 +15,8 @@ return <><Routes>
   <Route path="/vote/thanks" element={<VoteThanks/>}/>
   <Route path="/admin/login" element={<AdminLogin/>}/>
   <Route path="/admin" element={<RequireAdmin><AdminHome/></RequireAdmin>}/>
-  <Route path="/recepcion" element={<RequireAdmin><RegistrationDesk/></RequireAdmin>}/>
+  <Route path="/recepcion" element={<RequireAdmin><RegistrationDesk key="reception"/></RequireAdmin>}/>
+  <Route path="/nuevo-ingreso" element={<RequireAdmin><RegistrationDesk key="admission" admission/></RequireAdmin>}/>
   <Route path="*" element={<Navigate to="/" replace/>}/>
 </Routes>
 <footer className={`developer-credit${pathname === '/admin' ? ' developer-credit-admin' : ''}`}>Desarrollado por Zykodio</footer>

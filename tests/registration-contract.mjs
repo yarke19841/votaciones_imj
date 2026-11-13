@@ -1,3 +1,4 @@
+// Historical contract before day enrollment and reception were separated.
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFile, readdir } from 'node:fs/promises';
@@ -13,7 +14,7 @@ const denied=async(name,fn,pattern=/42501|permission|Solo|inactivo|alcance/i)=>{
 try{
  await db.exec(await readFile(new URL('./bethel-fixture.sql',import.meta.url),'utf8'));
  const dir=new URL('../supabase/migrations/',import.meta.url);
- for(const f of (await readdir(dir)).filter(f=>f.endsWith('.sql')).sort())await db.exec(await readFile(new URL(f,dir),'utf8'));
+ for(const f of (await readdir(dir)).filter(f=>f.endsWith('.sql') && f < '20261113140018').sort())await db.exec(await readFile(new URL(f,dir),'utf8'));
  await db.exec("update voting_private.church_location set latitude=9,longitude=-79 where church_key='imj'");
  await actor(null,null);await q('insert into auth.users(id,email) values($1,$2),($3,$4)',[uid(4),'register@example.test',uid(5),'unassigned@example.test']);
  await actor();const e=await rpc('voting_admin_save_election',[null,2027,'Registro QA',1,0,9,-79,150]);

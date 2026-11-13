@@ -6,7 +6,8 @@ export async function getAdminSession() {
   const { data, error } = await supabase.from('profiles').select('role,is_active').eq('user_id', session.user.id).maybeSingle()
   if (!error && data?.is_active && data.role === 'admin') return { ...session, votingRole: data.role }
   const { data: access, error: registrationError } = await supabase.rpc('voting_registration_access')
-  if (!registrationError && access?.elections?.length) return { ...session, votingRole: 'registration' }
+  if (!registrationError && access?.elections?.some(e => e.reception)) return { ...session, votingRole: 'registration' }
+  if (!registrationError && access?.elections?.some(e => e.admission)) return { ...session, votingRole: 'admission' }
   if (!error && data?.is_active && ['pastor', 'leader'].includes(data.role)) return { ...session, votingRole: data.role }
   return null
 }

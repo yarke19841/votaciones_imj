@@ -330,3 +330,13 @@ Verificación de lectura: 5–6 de octubre de 2026. Estas observaciones no son r
 - El ingreso automático del votante por cédula sigue registrando su llegada sin aprobación obligatoria de Recepción. Una llegada no emite un voto. El contador conserva llegadas registradas; no detecta salidas del recinto.
 - Accesos: `/#/admin` para Administración, `/#/recepcion` para Recepción y ruta de votante existente. Recepción usa su cuenta con correo y contraseña; la cédula corresponde al ingreso de votantes. El acceso del alojamiento y el permiso del módulo son controles independientes.
 - Evidencia y límites: `docs/ENTREGA_QUORUM_RECEPCION_20261108.md`. El porcentaje operativo y la persona concreta de Recepción los define Administración; no se asignan por suposición.
+
+## 16. Recepción y Nuevo ingreso — actualización del 13 de noviembre de 2026
+
+Esta decisión sustituye el permiso anterior de Recepción para dar altas.
+
+- **Recepción** valida y registra llegadas de personas ya habilitadas. Cuando una cédula no figura en el padrón, la pantalla indica que la persona debe pasar a **Nuevo ingreso**.
+- **Nuevo ingreso** verifica por cédula que la persona ya sea miembro: registro activo en el directorio de miembros, o identidad vinculada a un grupo activo o listado territorial activo. Solo habilita para la elección. No crea membresías de la iglesia, registra llegadas ni emite votos.
+- La persona habilitada puede volver a Recepción o registrar su llegada desde el acceso de votante. Una denegación o revocación previa, cédulas duplicadas y membresía no verificable se remiten a Administración.
+- Los dos permisos se asignan por separado y solo funcionan en la fecha autorizada de Panamá, con ingreso abierto y verificación de ubicación para registrar o habilitar. La configuración de quórum, la apertura y los resultados permanecen en Administración.
+- Las cuentas de aplicación previstas son `recepcion@imj.com` y `nuevoingreso@imj.com`. No se guardan contraseñas en el repositorio.

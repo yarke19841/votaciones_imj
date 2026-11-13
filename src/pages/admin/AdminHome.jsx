@@ -66,7 +66,7 @@ export default function AdminHome() {
       if (!alive) return
       if (!session) { setMsg('La sesión no está disponible. Vuelve a iniciar sesión.'); return }
       setRole(session.votingRole)
-      try { if (session.votingRole !== 'registration') await refresh(session.votingRole) } catch (e) { if (alive) setMsg(e.message) }
+      try { if (!['registration','admission'].includes(session.votingRole)) await refresh(session.votingRole) } catch (e) { if (alive) setMsg(e.message) }
     }).catch(e => { if (alive) setMsg(e.message) })
     return () => { alive = false }
   }, [refresh])
@@ -167,10 +167,10 @@ export default function AdminHome() {
     a.href = url; a.download = `padron-${current?.election_year || 'seleccionado'}-${enabled ? 'habilitados' : 'no-habilitados'}.csv`; a.click(); URL.revokeObjectURL(url)
   }
   if (!role) return <main className="center-page"><section className="card" role="status"><h1>Administración de votaciones</h1><p>{msg || 'Cargando tu acceso…'}</p>{msg && <button onClick={() => { location.hash = '/admin/login'; location.reload() }}>Volver al ingreso</button>}</section></main>
-  if (role === 'registration') return <RegistrationDesk/>
+  if (role === 'registration' || role === 'admission') return <RegistrationDesk admission={role === 'admission'}/>
   return <main className={`admin-page${isAdmin ? ' admin-with-navigation' : ''}`}>
     {isAdmin && menuOpen && <button type="button" className="admin-menu-backdrop" aria-label="Cerrar menú lateral" onClick={closeMenu}/>}
-    <AdminPageHeader title={isAdmin ? ({operation:'Votaciones',candidates:`Candidatos oficiales · ${current?.election_year || 'Seleccionar año'}`,practice:'Catálogo del simulacro 2026',results:`Resultados · ${current?.election_year || 'Seleccionar año'}`,roster:'Habilitados',election:'Elecciones y cupos',location:'Ubicación y excepciones',quorum:'Quórum',checkin:'Asistencia Rápida',registration:'Permisos de recepción'}[view]) : 'Habilitación de votantes'} elections={data.elections} selected={selectedElection} onElectionChange={setSelectedElection} busy={busy} onRefresh={() => run(async () => {}, 'Datos actualizados.')} onExit={async () => { await logoutAdmin(); location.hash = '/admin/login' }} onMenu={() => menuOpen ? closeMenu() : setMenuOpen(true)} menuRef={menuToggle} menuOpen={menuOpen}/>
+    <AdminPageHeader title={isAdmin ? ({operation:'Votaciones',candidates:`Candidatos oficiales · ${current?.election_year || 'Seleccionar año'}`,practice:'Catálogo del simulacro 2026',results:`Resultados · ${current?.election_year || 'Seleccionar año'}`,roster:'Habilitados',election:'Elecciones y cupos',location:'Ubicación y excepciones',quorum:'Quórum',checkin:'Asistencia Rápida',registration:'Permisos de la jornada'}[view]) : 'Habilitación de votantes'} elections={data.elections} selected={selectedElection} onElectionChange={setSelectedElection} busy={busy} onRefresh={() => run(async () => {}, 'Datos actualizados.')} onExit={async () => { await logoutAdmin(); location.hash = '/admin/login' }} onMenu={() => menuOpen ? closeMenu() : setMenuOpen(true)} menuRef={menuToggle} menuOpen={menuOpen}/>
     {msg && <p className="notice" role="status">{msg}</p>}
     {isAdmin && view === 'roster' && <RosterImport onImported={() => run(async () => {}, 'Padrón actualizado.')}/>}
     {view === 'roster' && <div className="actions"><button disabled={!selectedElection || busy} onClick={() => exportRoster(true)}>Exportar habilitados CSV</button><button disabled={!selectedElection || busy} onClick={() => exportRoster(false)}>Exportar no habilitados CSV</button><small>Respeta el filtro del listado. Cédulas limitadas a los últimos cuatro caracteres.</small></div>}
