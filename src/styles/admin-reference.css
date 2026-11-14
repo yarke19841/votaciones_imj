@@ -95,3 +95,29 @@
   .reference-results-actions { justify-content: space-between; }
   .reference-results-panel .reference-status { padding: 3px 6px; font-size: 11px; }
 }
+
+.registration-desk .registration-desk-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: clamp(8px, 2vw, 20px);
+}
+.registration-desk-header .registration-desk-exit { justify-self: end; min-height: 44px; margin: 0; white-space: nowrap; }
+.registration-desk-header .admin-heading > div { min-width: 0; }
+.registration-desk .admin-grid { grid-template-columns: minmax(0, 1fr); }
+.registration-desk .admin-grid > * { min-width: 0; }
+.registration-desk input, .registration-desk select { min-width: 0; font-size: max(16px, 1em); }
+.registration-desk .check { align-items: flex-start; gap: 8px; }
+.registration-desk .check input { flex: none; }
+.registration-records { display: grid; gap: .65rem; list-style: none; padding: 0; }
+.registration-records li { display: grid; gap: .3rem; border: 1px solid #dbe5f0; border-radius: 8px; padding: .8rem; overflow-wrap: anywhere; }
+.registration-records li span { color: #49596e; font-size: .9rem; }
+@media (min-width: 800px) {
+  .registration-desk .admin-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+}
+@media (max-width: 480px) {
+  .registration-desk-header .admin-header-logo { width: 34px; height: 34px; flex: none; }
+  .registration-desk-header .eyebrow { letter-spacing: .07em; }
+  .registration-desk-header .registration-desk-exit { padding-inline: .7rem; }
+  .registration-desk form .actions > button { flex: 1 1 auto; }
+}

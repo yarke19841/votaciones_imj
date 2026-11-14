@@ -3,7 +3,7 @@ export const isQaEnvironment=false
 const key='isolated-fixture-admin'
 const user={id:'00000000-0000-0000-0000-000000000001',email:'qa@example.test'}
 // The fixture declares the admin surface explicitly; this does not test real Auth.
-const session=()=>location.hash.startsWith('#/admin')?{user}:location.hash.startsWith('#/recepcion')?{user:{id:'00000000-0000-0000-0000-000000000004',email:'reception@example.test'}}:null
+const session=()=>location.hash.startsWith('#/admin')?{user}:location.hash.startsWith('#/recepcion')?{user:{id:'00000000-0000-0000-0000-000000000004',email:'reception@example.test'}}:location.hash.startsWith('#/nuevo-ingreso')?{user:{id:'00000000-0000-0000-0000-000000000005',email:'admission@example.test'}}:null
 export const supabase={
  auth:{
   async getSession(){return {data:{session:session()}}},

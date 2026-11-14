@@ -344,3 +344,7 @@ Esta decisión sustituye el permiso anterior de Recepción para dar altas.
 ### Entrada común del personal
 
 Administración, pastores, líderes, Recepción y Nuevo ingreso usan el mismo formulario de acceso. Tras autenticar, el panel abre el área de la cuenta según sus permisos. Un enlace directo a otra área no concede acceso; el sistema vuelve al área autorizada. Los permisos de Recepción y Nuevo ingreso siguen vigentes solo para la elección y fecha configuradas.
+
+### Alta electoral tras verificación presencial
+
+Si Nuevo ingreso no encuentra la cédula, su operador autorizado puede confirmar presencialmente la identidad y una membresía que ya existe, e indicar quién o qué registro de la iglesia la confirmó. Con nombre completo y esa constancia se crea el registro electoral y se habilita solo para la elección activa. No se crea una membresía, no se marca asistencia ni se emite voto. Una membresía inactiva, una cédula duplicada o una habilitación denegada o revocada requieren revisión de Administración. La acción conserva fecha, geovalla, permiso de Nuevo ingreso y auditoría. En móvil, Salir queda arriba a la derecha y las altas se presentan en tarjetas.
