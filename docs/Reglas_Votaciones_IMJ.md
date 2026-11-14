@@ -340,3 +340,7 @@ Esta decisión sustituye el permiso anterior de Recepción para dar altas.
 - La persona habilitada puede volver a Recepción o registrar su llegada desde el acceso de votante. Una denegación o revocación previa, cédulas duplicadas y membresía no verificable se remiten a Administración.
 - Los dos permisos se asignan por separado y solo funcionan en la fecha autorizada de Panamá, con ingreso abierto y verificación de ubicación para registrar o habilitar. La configuración de quórum, la apertura y los resultados permanecen en Administración.
 - Las cuentas de aplicación previstas son `recepcion@imj.com` y `nuevoingreso@imj.com`. No se guardan contraseñas en el repositorio.
+
+### Entrada común del personal
+
+Administración, pastores, líderes, Recepción y Nuevo ingreso usan el mismo formulario de acceso. Tras autenticar, el panel abre el área de la cuenta según sus permisos. Un enlace directo a otra área no concede acceso; el sistema vuelve al área autorizada. Los permisos de Recepción y Nuevo ingreso siguen vigentes solo para la elección y fecha configuradas.

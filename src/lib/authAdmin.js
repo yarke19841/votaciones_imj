@@ -6,8 +6,12 @@ export async function getAdminSession() {
   const { data, error } = await supabase.from('profiles').select('role,is_active').eq('user_id', session.user.id).maybeSingle()
   if (!error && data?.is_active && data.role === 'admin') return { ...session, votingRole: data.role }
   const { data: access, error: registrationError } = await supabase.rpc('voting_registration_access')
-  if (!registrationError && access?.elections?.some(e => e.reception)) return { ...session, votingRole: 'registration' }
-  if (!registrationError && access?.elections?.some(e => e.admission)) return { ...session, votingRole: 'admission' }
+  if (!registrationError) {
+    const votingRoles = []
+    if (access?.elections?.some(e => e.reception)) votingRoles.push('registration')
+    if (access?.elections?.some(e => e.admission)) votingRoles.push('admission')
+    if (votingRoles.length) return { ...session, votingRole: votingRoles[0], votingRoles }
+  }
   if (!error && data?.is_active && ['pastor', 'leader'].includes(data.role)) return { ...session, votingRole: data.role }
   return null
 }
@@ -15,14 +19,14 @@ export async function getAdminSession() {
 export async function loginAdmin(email, password) {
   const aliases = { sa: 'qa-voting-20261014-admin@example.invalid', registro: 'qa-voting-registration@example.invalid' }
   const loginEmail = isQaEnvironment ? (aliases[email.trim().toLowerCase()] || email) : email
-  const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password })
+  const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password })
   if (error) return { ok: false, msg: 'Correo o contraseña incorrectos.' }
   const session = await getAdminSession()
   if (!session) {
     await supabase.auth.signOut()
     return { ok: false, msg: 'Esta cuenta no tiene acceso activo al panel de votaciones.' }
   }
-  return { ok: true, session: data.session }
+  return { ok: true, session }
 }
 
 export async function logoutAdmin() { await supabase.auth.signOut() }
