@@ -1,0 +1,121 @@
+{
+  "checks": [
+    {
+      "name": "Auth login admin",
+      "passed": true
+    },
+    {
+      "name": "staff snapshot admin",
+      "passed": true
+    },
+    {
+      "name": "Auth login leader",
+      "passed": true
+    },
+    {
+      "name": "staff snapshot leader",
+      "passed": true
+    },
+    {
+      "name": "Auth login pastor",
+      "passed": true
+    },
+    {
+      "name": "staff snapshot pastor",
+      "passed": true
+    },
+    {
+      "name": "exact synthetic roster scope admin",
+      "passed": true
+    },
+    {
+      "name": "exact synthetic roster scope leader",
+      "passed": true
+    },
+    {
+      "name": "exact synthetic roster scope pastor",
+      "passed": true
+    },
+    {
+      "name": "leader enables own list",
+      "passed": true
+    },
+    {
+      "name": "leader rejects other list -14101402",
+      "passed": true
+    },
+    {
+      "name": "leader rejects other list -14101403",
+      "passed": true
+    },
+    {
+      "name": "leader rejects other list -14101404",
+      "passed": true
+    },
+    {
+      "name": "pastor enables own territory other list",
+      "passed": true
+    },
+    {
+      "name": "pastor rejects outside/inactive territory -14101403",
+      "passed": true
+    },
+    {
+      "name": "pastor rejects outside/inactive territory -14101404",
+      "passed": true
+    },
+    {
+      "name": "admin enables other territory",
+      "passed": true
+    },
+    {
+      "name": "leader cannot revoke other territory",
+      "passed": true
+    },
+    {
+      "name": "pastor cannot revoke other territory",
+      "passed": true
+    },
+    {
+      "name": "pastor revokes own territory",
+      "passed": true
+    },
+    {
+      "name": "leader cannot read administrative snapshot",
+      "passed": true
+    },
+    {
+      "name": "leader cannot close elections",
+      "passed": true
+    },
+    {
+      "name": "leader cannot grant location exception",
+      "passed": true
+    },
+    {
+      "name": "pastor cannot read administrative snapshot",
+      "passed": true
+    },
+    {
+      "name": "pastor cannot close elections",
+      "passed": true
+    },
+    {
+      "name": "pastor cannot grant location exception",
+      "passed": true
+    },
+    {
+      "name": "logout admin",
+      "passed": true
+    },
+    {
+      "name": "logout leader",
+      "passed": true
+    },
+    {
+      "name": "logout pastor",
+      "passed": true
+    }
+  ],
+  "all_passed": true
+}

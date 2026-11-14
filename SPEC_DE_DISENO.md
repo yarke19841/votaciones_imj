@@ -3,6 +3,9 @@
 **Identificador:** SPEC-UI-001  
 **Estado:** Vigente — estándar de diseño  
 **Ámbito:** Todas las pantallas del sistema Votaciones IMJ
+**Actualizado:** 17 de octubre de 2026 (Panamá)
+
+**Índice y precedencia:** [Especificaciones del proyecto](./docs/SPECS.md)
 
 ## 1. Objetivo
 Mantener una identidad visual uniforme basada en las pantallas existentes y aprobadas. Una modificación funcional no autoriza un rediseño.
@@ -10,9 +13,31 @@ Mantener una identidad visual uniforme basada en las pantallas existentes y apro
 ## 2. Fuente de verdad
 Las pantallas existentes y aprobadas del repositorio son la referencia visual oficial. Antes de desarrollar o modificar una pantalla, revisar la pantalla equivalente y sus componentes.
 
+Las decisiones posteriores de Yarquelis y las [reglas consolidadas actuales](./docs/Reglas_Votaciones_IMJ.md) prevalecen sobre elementos provisionales de capturas anteriores. En particular, el logo oficial circular reemplaza la letra «J» y la paloma provisional de los mockups.
+
 Conservar estructura, distribución, colores, fondos, tipografía, espaciados, márgenes, alineación, encabezados, navegación, tarjetas, tablas, indicadores, botones, campos, estados, mensajes y comportamiento responsive.
 
 No introducir nuevos patrones visuales sin aprobación.
+
+### 2.1 Identidad confirmada el 17 de octubre
+
+- Nombre visible: **Ministerio Jezreel**. Aplicar una misma identidad a Administración, votantes y cabecera móvil.
+- Fuente del logo: [archivo original aportado por Yarquelis](./docs/referencias/Logo_Oficial_Jezreel.png). Conservar forma, proporciones, círculos, paloma y globo; no redibujarlo ni sustituirlo por una letra o símbolo parecido.
+- Presentación: diseño del emblema en azul marino sobre una **base circular blanca**. El exterior del círculo se integra al color del menú o de la pantalla; eliminar el recuadro blanco rectangular. Conservar el original como referencia y usar la variante de presentación correspondiente en la aplicación.
+- Reemplazar la «J» provisional del encabezado del menú lateral por ese logo. Mantenerlo visible al contraer el menú en móvil.
+- Colores y tipografía compartidos entre todas las pantallas y tamaños. No introducir una identidad distinta al cambiar de vista.
+
+| Uso | Valor técnico de referencia |
+| --- | --- |
+| Azul marino principal | `#052852` |
+| Blanco | `#FFFFFF` |
+| Celeste informativo | `#E4F0FC` |
+| Selección del menú | `#3A567E` |
+| Familia tipográfica compartida | `Arial, Helvetica, sans-serif` |
+
+Estos colores son aproximaciones muestreadas de la [referencia administrativa aprobada](./docs/referencias/Referencia_Administracion_IMJ.jpeg), no valores fuente verificados del diseño original. Arial/Helvetica es una aproximación compartida: el nombre exacto de la fuente original sigue pendiente de confirmar. No declarar equivalencia visual exacta sin comparar con la referencia. Centralizar también pesos y jerarquía de títulos, textos y controles.
+
+Verificar móvil pequeño, tablet y escritorio, en vertical y horizontal. Reorganizar controles y tarjetas sin cortar acciones ni desplazar horizontalmente toda la página; las tablas extensas pueden desplazarse dentro de su propio contenedor accesible.
 
 ## 3. Pantallas nuevas y derivadas
 - Reutilizar componentes y estilos existentes.
@@ -62,6 +87,12 @@ Preferir componentes y estilos centralizados para Button, Input, Select, Card, S
 
 **Principio rector:** Una sola identidad visual, múltiples módulos, experiencia consistente.
 
+## Crédito de desarrollo aprobado
+
+**Adaptación móvil:** el panel lateral desplegable fue inicialmente una decisión de implementación. Las vistas del 28 de octubre se mostraron a la responsable y luego autorizó «Publícalo»; se publicaron en el mismo sitio. Esta autorización no implica aprobar diseños futuros. Una anotación del desarrollador en este spec no constituye aprobación.
+
+Decisión confirmada por la responsable del proyecto: mostrar **Desarrollado por Zykodio** al final de las pantallas del módulo, tanto para votantes como para administración. El crédito debe ser discreto, legible, responsive y no cubrir controles ni sustituir la identidad de Ministerio Jezreel. No presentar Zykodio como marca registrada ni añadir símbolos de registro. El registro legal permanece pendiente; el crédito no acredita titularidad exclusiva del nombre.
+
 ## 9. Referencias visuales en Figma
 
 **Archivo de referencia:** [Votaciones IMJ — Referencias visuales aprobadas](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5)
@@ -81,10 +112,12 @@ Las siguientes capturas fueron proporcionadas por la responsable del proyecto co
 | IMJ-ADM-01 (duplicada) | 312E94F7-4EEC-430F-996C-64DC35BDE0B3.jpeg | Misma composición administrativa | No generar diseño adicional |
 | IMJ-ADM-01 (duplicada) | 312E94F7-4EEC-430F-996C-64DC35BDE0B3(2).jpeg | Misma composición administrativa | No generar diseño adicional |
 | IMJ-ADM-01 (captura de visor) | IMG_2729.jpeg | Misma composición en captura con márgenes negros | No utilizar márgenes del visor como diseño |
+| IMJ-ADM-01 (referencia del 17-10-2026) | [312E94F7-4EEC-430F-996C-64DC35BDE0B3(3).jpeg](./docs/referencias/Referencia_Administracion_IMJ.jpeg) | Candidatos oficiales 2027, resultados oficial 2027 y catálogo del simulacro 2026 | Colores, tipografía y estructura administrativa aprobados |
+| IMJ-LOGO-01 | [Iglesia Ministerios Jezreel.png](./docs/referencias/Logo_Oficial_Jezreel.png) | Emblema oficial circular con paloma y globo | Fuente del logo; aplicar variante azul marino con base circular blanca, exterior integrado |
 | BETHEL-ADM-01 | IMG_2730.jpeg | Panel de votaciones y habilitados de Bethel | Referencia exclusiva Bethel |
 
 ### 10.1 Separación de identidades
-- **IMJ:** azul marino, blanco y azul claro, con paloma institucional y estilo mostrado en las capturas de IMJ.
+- **IMJ:** azul marino, blanco y azul claro, con el logo oficial y estilo mostrado en las capturas de IMJ. Las palomas provisionales de esas capturas quedan reemplazadas por el archivo oficial recibido el 17 de octubre.
 - **Bethel:** identidad propia de la captura de Bethel; no trasplantar logotipo, tipografía o paleta de Bethel a IMJ.
 - Los nombres, cifras, fotografías y fechas que aparecen en las propuestas son datos ilustrativos, no datos de producción.
 
