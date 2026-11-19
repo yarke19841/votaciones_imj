@@ -66,7 +66,7 @@ export function ResultPanels({ rows, voterCount, onExport }) {
     <div className="reference-results-grid">{[['M', 'Ganadores · Hombres'], ['F', 'Ganadoras · Mujeres']].map(([gender, title]) => {
       const winners = rows.filter(r => r.gender === gender && r.result_status === 'Puesto obtenido').sort((a, b) => Number(b.vote_count) - Number(a.vote_count))
       const hasTie = rows.some(r => r.gender === gender && r.result_status === 'Empate por puesto pendiente')
-      return <article className="card reference-winners" key={gender}><h2>{title}</h2>{winners.length ? <ul>{winners.map(r => <li key={r.candidate_id}><strong>{r.full_name}</strong><span>{r.vote_count} {Number(r.vote_count) === 1 ? 'voto' : 'votos'}</span></li>)}</ul> : <p>Sin puestos adjudicados.</p>}{hasTie && <p className="reference-info">Hay puestos pendientes de desempate.</p>}</article>
+      return <article className="card reference-winners" key={gender}><h2>{title}</h2>{winners.length ? <ul>{winners.map(r => <li key={r.candidate_id}><strong>{r.full_name}</strong></li>)}</ul> : <p>Sin puestos adjudicados.</p>}{hasTie && <p className="reference-info">Hay puestos pendientes de desempate.</p>}</article>
     })}</div>
   </section><h2>Detalle de resultados</h2><div className="reference-results-grid">{[['F', 'Mujeres'], ['M', 'Hombres']].map(([gender, title]) => {
     const ordered = rows.filter(r => r.gender === gender).sort((a, b) => Number(b.vote_count) - Number(a.vote_count))
