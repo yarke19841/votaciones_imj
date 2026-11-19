@@ -16,7 +16,8 @@
     "test:quorum": "node tests/quorum-reception-contract.mjs",
     "test:results": "node tests/results-reader-contract.mjs",
     "test:security": "node tests/legacy-security-contract.mjs",
-    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick && npm run test:quorum && npm run test:results && npm run test:security"
+    "test:existing-roster": "node tests/existing-roster-contract.mjs",
+    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick && npm run test:quorum && npm run test:results && npm run test:security && npm run test:existing-roster"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0",

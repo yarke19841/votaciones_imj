@@ -1,7 +1,7 @@
 # SPEC DE REGLAS FUNCIONALES — Votaciones IMJ
 
 **Identificador:** SPEC-FUNC-001  
-**Versión:** 1.3 (consulta de resultados y control de acceso confirmados al 19-11-2026)
+**Versión:** 1.4 (padrón existente compartido confirmado al 19-11-2026)
 
 **Estado:** Reglas conocidas y pendientes de validación identificadas  
 **Proyecto:** votaciones_imj  
@@ -9,6 +9,8 @@
 **Índice y precedencia:** [Especificaciones del proyecto](./docs/SPECS.md)
 
 ## 1. Propósito y alcance
+
+Regla confirmada el 19-11-2026: el padrón electoral existente se utiliza tanto para simulacros como para votación oficial. Se conserva `public.member` como fuente y sus estados; no se genera un padrón separado por tipo de ronda. Administración consulta la fuente en Habilitados → Padrón electoral existente. La habilitación explícita corresponde a la elección y se comparte entre simulacro/oficial; la asistencia y la participación son independientes por ronda. No se habilita automáticamente por estar activo ni se copian votos o asistencias anteriores. La vinculación canónica se realiza por cédula verificada, conserva historial y bloquea una reasignación silenciosa si cambia la cédula de una persona ya vinculada.
 
 Regla aprobada el 19-11-2026: acceso de solo resultados mediante permiso independiente. Ninguna cuenta sin sesión y autorización puede consultar datos ni operar fuera de su ámbito. La cuenta de consulta ve únicamente rondas cerradas y agregados, sin permisos administrativos, padrón o datos individuales. Se exige control en servidor y rutas, incluyendo superficies electorales heredadas. Detalles y verificación: [Seguridad y resultados](./docs/SEGURIDAD_RESULTADOS_20261119.md).
 
