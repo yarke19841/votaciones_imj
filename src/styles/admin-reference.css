@@ -121,3 +121,12 @@
   .registration-desk-header .registration-desk-exit { padding-inline: .7rem; }
   .registration-desk form .actions > button { flex: 1 1 auto; }
 }
+
+.reference-voter-total { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; background: #e6f0fc; color: #112951; border-radius: 12px; padding: 18px; margin-bottom: 14px; font-size: 16px; }
+.reference-voter-total strong { font-size: 32px; }
+.reference-winners { min-width: 0; }
+.reference-winners h2 { font-size: 22px; }
+.reference-winners ul { list-style: none; padding: 0; margin: 0; }
+.reference-winners li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 12px 0; border-bottom: 1px solid #dce4ef; font-size: 16px; overflow-wrap: anywhere; }
+.reference-winners li span { white-space: nowrap; }
+.reference-winners .reference-info { margin-bottom: 0; }

@@ -60,8 +60,15 @@ export function CandidateWorkspace({ practice, year, femaleSlots, maleSlots, can
   </>
 }
 
-export function ResultPanels({ rows, onExport }) {
-  return <><div className="reference-results-actions"><span className="reference-status">▣ Votación cerrada</span><button onClick={onExport}>↓ Exportar resultados</button></div><div className="reference-results-grid">{[['F', 'Mujeres'], ['M', 'Hombres']].map(([gender, title]) => {
+export function ResultPanels({ rows, voterCount, onExport }) {
+  return <><div className="reference-results-actions"><span className="reference-status">▣ Votación cerrada</span><button onClick={onExport}>↓ Exportar resultados</button></div><section className="reference-results-summary" aria-label="Resumen de resultados">
+    <div className="reference-voter-total"><span>Personas que votaron</span><strong>{voterCount ?? '—'}</strong><span>En esta ronda</span></div>
+    <div className="reference-results-grid">{[['M', 'Ganadores · Hombres'], ['F', 'Ganadoras · Mujeres']].map(([gender, title]) => {
+      const winners = rows.filter(r => r.gender === gender && r.result_status === 'Puesto obtenido').sort((a, b) => Number(b.vote_count) - Number(a.vote_count))
+      const hasTie = rows.some(r => r.gender === gender && r.result_status === 'Empate por puesto pendiente')
+      return <article className="card reference-winners" key={gender}><h2>{title}</h2>{winners.length ? <ul>{winners.map(r => <li key={r.candidate_id}><strong>{r.full_name}</strong><span>{r.vote_count} {Number(r.vote_count) === 1 ? 'voto' : 'votos'}</span></li>)}</ul> : <p>Sin puestos adjudicados.</p>}{hasTie && <p className="reference-info">Hay puestos pendientes de desempate.</p>}</article>
+    })}</div>
+  </section><h2>Detalle de resultados</h2><div className="reference-results-grid">{[['F', 'Mujeres'], ['M', 'Hombres']].map(([gender, title]) => {
     const ordered = rows.filter(r => r.gender === gender).sort((a, b) => Number(b.vote_count) - Number(a.vote_count))
     const ties = ordered.some(r => r.result_status === 'Empate por puesto pendiente')
     return <article className="card reference-results-panel" key={gender}><h2><Icon name="person"/>{title}</h2><div className="table-scroll" role="region" aria-label={`Resultados de ${title.toLowerCase()}`} tabIndex="0"><table><thead><tr><th>#</th><th>{gender === 'F' ? 'Candidata' : 'Candidato'}</th><th>Votos</th><th>Estado</th></tr></thead><tbody>{ordered.map((r, i) => <tr key={r.candidate_id}><td>{i + 1}</td><td>{r.full_name}</td><td>{r.vote_count}</td><td><span className={`reference-status ${r.result_status === 'Puesto obtenido' ? 'enabled' : ''}`} title={r.result_status}>{r.result_status === 'Puesto obtenido' ? gender === 'F' ? 'Ganadora' : 'Ganador' : r.result_status === 'Empate por puesto pendiente' ? 'Empate' : 'Fuera'}</span></td></tr>)}</tbody></table></div>{!ordered.length && <p className="reference-empty">Sin candidatos en esta categoría.</p>}{ties && <div className="reference-info"><strong>Puesto pendiente</strong> · Empate en el último cupo.</div>}</article>
