@@ -1,17 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
+import { productionSupabase } from './deploymentConfig'
+
+export const isQaEnvironment = import.meta.env.VITE_APP_ENV === 'qa' && import.meta.env.VITE_SUPABASE_URL === 'https://mldaqivoqhneqldjuryj.supabase.co'
 
 export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON
+  import.meta.env.VITE_SUPABASE_URL || productionSupabase.url,
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON ||
+    (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === productionSupabase.url ? productionSupabase.publishableKey : '')
 )
-
-/*
-
-import { createClient } from '@supabase/supabase-js'
-
-// ⚠️ SOLO PRUEBA. NO DEJAR EN PRODUCCIÓN.
-const URL = 'https://fepcnvcvgzxbjaoxnbcc.supabase.co'
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcGNudmN2Z3p4Ymphb3huYmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3OTY2NDQsImV4cCI6MjA3MDM3MjY0NH0.XU27bFFiJKDFddeTK15q8lXBrOVvQtpQkycx9TEjJPE'
-export const supabase = createClient(URL, KEY)
-
-  */
