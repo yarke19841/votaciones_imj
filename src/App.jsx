@@ -6,6 +6,7 @@ import VoteThanks from './pages/VoteThanks'
 import AdminLogin from './pages/admin/AdminLogin'
 import AdminHome from './pages/admin/AdminHome'
 import RegistrationDesk from './pages/admin/RegistrationDesk'
+import ResultsViewer from './pages/admin/ResultsViewer'
 
 export default function App(){
 const { pathname } = useLocation()
@@ -17,7 +18,8 @@ return <><Routes>
   <Route path="/admin" element={<RequireAdmin><AdminHome/></RequireAdmin>}/>
   <Route path="/recepcion" element={<RequireAdmin><RegistrationDesk key="reception"/></RequireAdmin>}/>
   <Route path="/nuevo-ingreso" element={<RequireAdmin><RegistrationDesk key="admission" admission/></RequireAdmin>}/>
+  <Route path="/resultados" element={<RequireAdmin><ResultsViewer/></RequireAdmin>}/>
   <Route path="*" element={<Navigate to="/" replace/>}/>
 </Routes>
-<footer className={`developer-credit${pathname === '/admin' ? ' developer-credit-admin' : ''}`}>Desarrollado por Zykodio</footer>
+<footer className={`developer-credit${['/admin','/resultados'].includes(pathname) ? ' developer-credit-admin' : ''}`}>Desarrollado por Zykodio</footer>
 </>}

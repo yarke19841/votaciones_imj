@@ -1,7 +1,7 @@
 # SPEC DE REGLAS FUNCIONALES — Votaciones IMJ
 
 **Identificador:** SPEC-FUNC-001  
-**Versión:** 1.2 (quórum y Recepción confirmados al 08-11-2026)
+**Versión:** 1.3 (consulta de resultados y control de acceso confirmados al 19-11-2026)
 
 **Estado:** Reglas conocidas y pendientes de validación identificadas  
 **Proyecto:** votaciones_imj  
@@ -9,6 +9,8 @@
 **Índice y precedencia:** [Especificaciones del proyecto](./docs/SPECS.md)
 
 ## 1. Propósito y alcance
+
+Regla aprobada el 19-11-2026: acceso de solo resultados mediante permiso independiente. Ninguna cuenta sin sesión y autorización puede consultar datos ni operar fuera de su ámbito. La cuenta de consulta ve únicamente rondas cerradas y agregados, sin permisos administrativos, padrón o datos individuales. Se exige control en servidor y rutas, incluyendo superficies electorales heredadas. Detalles y verificación: [Seguridad y resultados](./docs/SEGURIDAD_RESULTADOS_20261119.md).
 
 Definir el comportamiento funcional del sistema de votaciones de Ministerio Jezreel, tanto en simulacros como en elecciones oficiales. El diseño visual se rige por `SPEC_DE_DISENO.md`; este documento rige procesos, datos, autorizaciones y controles. No sustituye las reglas de seguridad, RLS ni los requisitos legales que deban establecerse.
 

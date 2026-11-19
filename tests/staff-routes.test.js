@@ -4,11 +4,12 @@ import { staffDestination } from '../src/lib/staffRoutes.js'
 
 test('each staff role lands in its own workspace and cannot open another by URL', () => {
   for (const [role, home] of Object.entries({
-    registration: '/recepcion', admission: '/nuevo-ingreso', pastor: '/admin', leader: '/admin',
+    registration: '/recepcion', admission: '/nuevo-ingreso', pastor: '/admin', leader: '/admin', results: '/resultados',
   })) {
     const session = { votingRole: role }
     assert.equal(staffDestination(session), home)
-    for (const requested of ['/admin', '/recepcion', '/nuevo-ingreso', '/vote', '//external.test']) {
+    for (const requested of ['/admin', '/recepcion', '/nuevo-ingreso', '/resultados', '/vote', '//external.test']) {
+      if (requested === home) continue
       assert.equal(staffDestination(session, requested), home)
     }
   }
@@ -20,7 +21,7 @@ test('explicitly authorized staff and administrators keep access to their desks'
   const both = { votingRole: 'registration', votingRoles: ['registration', 'admission'] }
   assert.equal(staffDestination(both, '/nuevo-ingreso'), '/nuevo-ingreso')
   assert.equal(staffDestination(both, '/admin'), '/recepcion')
-  for (const path of ['/admin', '/recepcion', '/nuevo-ingreso']) {
+  for (const path of ['/admin', '/recepcion', '/nuevo-ingreso', '/resultados']) {
     assert.equal(staffDestination({ votingRole: 'admin' }, path), path)
   }
 })

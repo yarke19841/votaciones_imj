@@ -22,11 +22,11 @@ function Icon({ name }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name] || paths.list}/></svg>
 }
 
-export function AdminNavigation({ view, onSelect, open, onClose, closeRef }) {
+export function AdminNavigation({ view, onSelect, open, onClose, closeRef, sections = adminSections }) {
   return <nav id="admin-navigation" className={`actions admin-menu${open ? ' admin-menu-open' : ''}`} aria-label="Administración de votaciones">
     <button type="button" ref={closeRef} className="admin-menu-close" onClick={onClose}>Cerrar menú ×</button>
     <div className="admin-menu-brand"><OfficialLogo/><div><strong>Ministerio<br/>Jezreel</strong><span>Votaciones</span></div></div>
-    {adminSections.map(([id, label, icon], i) => <button key={id} className={`${view === id ? '' : 'secondary'}${i === 5 ? ' admin-settings-start' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onSelect(id)}><Icon name={icon}/><span>{label}</span></button>)}
+    {sections.map(([id, label, icon], i) => <button key={id} className={`${view === id ? '' : 'secondary'}${i === 5 ? ' admin-settings-start' : ''}`} aria-current={view === id ? 'page' : undefined} onClick={() => onSelect(id)}><Icon name={icon}/><span>{label}</span></button>)}
   </nav>
 }
 

@@ -6,6 +6,7 @@ const user={id:'00000000-0000-0000-0000-000000000001',email:'qa@example.test'}
 const session=()=>location.hash.startsWith('#/admin')?{user}:location.hash.startsWith('#/recepcion')?{user:{id:'00000000-0000-0000-0000-000000000004',email:'reception@example.test'}}:location.hash.startsWith('#/nuevo-ingreso')?{user:{id:'00000000-0000-0000-0000-000000000005',email:'admission@example.test'}}:null
 export const supabase={
  auth:{
+  onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}},
   async getSession(){return {data:{session:session()}}},
   async signInWithPassword({email,password}){if(email!=='qa@example.test'||password!=='fixture-only')return {data:{},error:{message:'Invalid fixture login'}};sessionStorage.setItem(key,'yes');return {data:{session:session()},error:null}},
   async signOut(){sessionStorage.removeItem(key);return {error:null}},

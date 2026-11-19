@@ -22,7 +22,7 @@ const electionDraft = e => ({ id: e.id, year: e.election_year, title: e.title, m
 const numeric = value => value === '' ? null : Number(value)
 const personGroups = person => person.groups || (person.group_name ? [{ id: person.group_id ?? person.group_name, name: person.group_name }] : [])
 const rosterPeople = roster => Array.isArray(roster) ? roster : (roster?.people || roster?.rows || [])
-const csvCell = value => `"${String(value ?? '').replace(/^[=+@\-]/, "'$&").replaceAll('"', '""')}"`
+const csvCell = value => `"${String(value ?? '').replace(/^[\s]*[=+@\-]/, "'$&").replaceAll('"', '""')}"`
 
 export default function AdminHome() {
   const [data, setData] = useState({ elections: [], candidates: [], rounds: [] })

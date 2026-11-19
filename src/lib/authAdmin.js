@@ -5,6 +5,8 @@ export async function getAdminSession() {
   if (!session?.user) return null
   const { data, error } = await supabase.from('profiles').select('role,is_active').eq('user_id', session.user.id).maybeSingle()
   if (!error && data?.is_active && data.role === 'admin') return { ...session, votingRole: data.role }
+  const { data: resultsAccess, error: resultsError } = await supabase.rpc('voting_results_access')
+  if (!resultsError && resultsAccess === true) return { ...session, votingRole: 'results' }
   const { data: access, error: registrationError } = await supabase.rpc('voting_registration_access')
   if (!registrationError) {
     const votingRoles = []

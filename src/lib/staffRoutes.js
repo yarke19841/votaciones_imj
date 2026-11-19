@@ -4,13 +4,14 @@ const homeByRole = {
   leader: '/admin',
   registration: '/recepcion',
   admission: '/nuevo-ingreso',
+  results: '/resultados',
 }
 
 export function staffDestination(session, requestedPath) {
   const home = homeByRole[session?.votingRole]
   if (typeof home !== 'string') return null
   const allowed = session.votingRole === 'admin'
-    ? ['/admin', '/recepcion', '/nuevo-ingreso']
+    ? ['/admin', '/recepcion', '/nuevo-ingreso', '/resultados']
     : (session.votingRoles || [session.votingRole]).map(role => homeByRole[role])
   return allowed.includes(requestedPath) ? requestedPath : home
 }

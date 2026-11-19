@@ -14,7 +14,9 @@
     "test:import": "node tests/import-contract.mjs",
     "test:quick": "node tests/church-quick-contract.mjs",
     "test:quorum": "node tests/quorum-reception-contract.mjs",
-    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick && npm run test:quorum"
+    "test:results": "node tests/results-reader-contract.mjs",
+    "test:security": "node tests/legacy-security-contract.mjs",
+    "test:all": "npm test && npm run test:sql && npm run test:registration && npm run test:import && npm run test:quick && npm run test:quorum && npm run test:results && npm run test:security"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.78.0",
