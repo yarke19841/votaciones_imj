@@ -128,4 +128,4 @@ Comparar cada nueva pantalla contra la imagen correspondiente a su iglesia y mó
 
 ## Papeleta: separación por género
 
-La papeleta agrupa candidatas y candidatos en secciones independientes con títulos Mujeres y Hombres. Se conservan arriba los contadores de selección por género y sus cupos configurados. En móvil no se mezclan ambos grupos en una misma fila; se conserva la identidad azul marino/blanco y las reglas de selección existentes.
+La papeleta agrupa candidatas y candidatos en secciones independientes con títulos Mujeres y Hombres. Se conservan arriba los contadores de selección por género y sus cupos configurados. El mismo contador se repite junto a cada título Mujeres y Hombres y se actualiza al seleccionar o quitar una tarjeta, para consultarlo al desplazarse por la papeleta. En móvil no se mezclan ambos grupos en una misma fila; se conserva la identidad azul marino/blanco y las reglas de selección existentes.

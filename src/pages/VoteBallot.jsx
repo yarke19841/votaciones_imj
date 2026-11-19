@@ -37,9 +37,10 @@ export default function VoteBallot() {
     <div className="ballot-groups">{[
       { gender: 'F', title: 'Mujeres', slots: ballot.female_slots },
       { gender: 'M', title: 'Hombres', slots: ballot.male_slots },
-    ].map(({ gender, title }) => <section className="ballot-group" key={gender} aria-labelledby={`ballot-group-${gender}`}>
+    ].map(({ gender, title, slots }) => <section className="ballot-group" key={gender} aria-labelledby={`ballot-group-${gender}`}>
       <header className="ballot-group-header">
         <h2 id={`ballot-group-${gender}`}>{title}</h2>
+        <span className="ballot-group-count" aria-live="polite" aria-atomic="true">{counts[gender]}/{slots} {gender === 'F' ? 'seleccionadas' : 'seleccionados'}</span>
       </header>
       <div className="ballot-options">{ballot.candidates.filter(c => c.gender === gender).map(c => {
       const picked = selected.includes(c.id), full = !picked && counts[c.gender] >= (c.gender === 'F' ? ballot.female_slots : ballot.male_slots)
