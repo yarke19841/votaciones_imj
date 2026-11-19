@@ -34,12 +34,20 @@ export default function VoteBallot() {
     <h1 className="ballot-heading">{kind}{ballot.year ? ` ${ballot.year}` : ''}</h1>
     <p className="ballot-instructions">Selecciona {ballot.female_slots} {ballot.female_slots === 1 ? 'mujer' : 'mujeres'} y {ballot.male_slots} {ballot.male_slots === 1 ? 'hombre' : 'hombres'}.</p>
     <div className="ballot-quotas" aria-live="polite">{['F', 'M'].map(gender => <div className="ballot-quota" key={gender}><VoteIcon name="person"/><span>{gender === 'F' ? 'Mujeres' : 'Hombres'}<strong>{counts[gender]}/{gender === 'F' ? ballot.female_slots : ballot.male_slots}</strong></span></div>)}</div>
-    <div className="ballot-options">{[...ballot.candidates].sort((a, b) => a.gender.localeCompare(b.gender)).map(c => {
+    <div className="ballot-groups">{[
+      { gender: 'F', title: 'Mujeres', slots: ballot.female_slots },
+      { gender: 'M', title: 'Hombres', slots: ballot.male_slots },
+    ].map(({ gender, title }) => <section className="ballot-group" key={gender} aria-labelledby={`ballot-group-${gender}`}>
+      <header className="ballot-group-header">
+        <h2 id={`ballot-group-${gender}`}>{title}</h2>
+      </header>
+      <div className="ballot-options">{ballot.candidates.filter(c => c.gender === gender).map(c => {
       const picked = selected.includes(c.id), full = !picked && counts[c.gender] >= (c.gender === 'F' ? ballot.female_slots : ballot.male_slots)
       return <button type="button" className="ballot-card" aria-pressed={picked} aria-label={`${c.name}, ${picked ? 'seleccionado' : full ? 'cupo completo' : 'sin seleccionar'}`} key={c.id} disabled={busy || full} onClick={() => toggle(c.id)}>
         <div className="ballot-portrait"><CandidatePhoto path={c.photo_url} name={c.name}/>{full ? <span className="ballot-full">Cupo completo</span> : <span className={`ballot-mark${picked ? ' selected' : ''}`}>{picked && <VoteIcon/>}</span>}</div><strong className="ballot-name">{c.name}</strong>
       </button>
-    })}</div>
+      })}</div>
+    </section>)}</div>
     <div className="ballot-summary">{ballot.female_slots} {ballot.female_slots === 1 ? 'mujer' : 'mujeres'} · {ballot.male_slots} {ballot.male_slots === 1 ? 'hombre' : 'hombres'}</div>
     {msg && <p className="voting-error" role="alert">{msg}</p>}
     <div className="ballot-actions"><button className="voting-primary" disabled={!ready || busy} onClick={send}>{busy ? 'Verificando y enviando…' : 'Enviar voto'}</button></div>

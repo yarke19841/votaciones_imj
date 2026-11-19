@@ -125,3 +125,7 @@ Las siguientes capturas fueron proporcionadas por la responsable del proyecto co
 Comparar cada nueva pantalla contra la imagen correspondiente a su iglesia y módulo. Mantener la navegación lateral, jerarquía, espaciados, tarjetas y controles de la referencia, salvo modificación expresamente aprobada. La referencia móvil y la de escritorio responden a contextos de uso diferentes; no trasladar un layout de escritorio a móvil sin adaptación.
 
 **Figma:** [Votaciones IMJ — Referencias visuales aprobadas](https://www.figma.com/design/EbqaWBgNWuUSs2mhloRfh5). Hasta que se complete la carga y se registren IDs de frames, este enlace corresponde al archivo contenedor y no constituye evidencia de que las capturas ya estén colocadas en su lienzo.
+
+## Papeleta: separación por género
+
+La papeleta agrupa candidatas y candidatos en secciones independientes con títulos Mujeres y Hombres. Se conservan arriba los contadores de selección por género y sus cupos configurados. En móvil no se mezclan ambos grupos en una misma fila; se conserva la identidad azul marino/blanco y las reglas de selección existentes.
